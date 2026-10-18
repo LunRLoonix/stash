@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#a98af0">
+<title>Stash | Savings Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f2fb;--card:#fff;--ink:#271f3d;--mute:#867da0;--line:#ebe5f6;--acc:#a98af0;--acc2:#f58fc4;--ok:#3bb77e;--bad:#e8596f;--sh:0 6px 24px rgba(110,80,190,.10)}
+@media(prefers-color-scheme:dark){:root{--bg:#14111d;--card:#1e1930;--ink:#f2edff;--mute:#9b93b6;--line:#2d2644;--sh:0 6px 24px rgba(0,0,0,.35)}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:15px/1.45 Figtree,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+h1,h2,h3,h4,.num{font-family:'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.02em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+small{color:var(--mute)}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 110px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.top h1{font-size:30px;font-weight:800}
+.top h1 span{display:inline-block;animation:wob 3s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg) scale(1.1)}}
+.btn{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font-weight:600;padding:12px 20px;border-radius:14px;box-shadow:0 6px 16px rgba(169,138,240,.4);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px)}.btn:active{transform:scale(.96)}
+.ghost{padding:10px 16px;border-radius:12px;border:1.5px solid var(--line);font-weight:600;transition:background .15s,transform .15s}
+.ghost:hover{background:var(--line)}.ghost:active{transform:scale(.96)}
+.danger{color:var(--bad)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#view{animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:var(--sh);cursor:pointer;transition:transform .2s}
+.card:hover{transform:translateY(-3px)}.card:active{transform:scale(.985)}
+.row{display:flex;align-items:center;gap:12px}.grow{flex:1;min-width:0}.sp{justify-content:space-between;margin-top:10px}
+.card h3{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pct{font-size:20px}
+.ico{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:24px;object-fit:cover;flex:none}
+.ico.big{width:84px;height:84px;font-size:42px;border-radius:26px}
+.bar{height:12px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:14px}
+.bar.lg{height:16px}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--c,var(--acc)),var(--acc2));transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.rec{display:block;margin-top:8px}
+.empty{text-align:center;padding:60px 20px}.empty .em{font-size:56px;display:block;margin-bottom:10px}
+.hero{text-align:center;padding:10px 0 4px}
+.hero h2{font-size:26px;margin:12px 0 4px}.hero .num{font-size:44px;font-weight:800}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.stat{background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:var(--sh)}
+.stat b{display:block;font-size:16px;margin-top:2px}
+.note{background:linear-gradient(135deg,rgba(169,138,240,.16),rgba(245,143,196,.16));border:1.5px dashed var(--acc);border-radius:16px;padding:14px 16px;margin-bottom:16px;font-weight:500}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}.acts .btn{flex:1;min-width:160px}
+h4{font-size:18px;margin-bottom:10px}
+ul{list-style:none}
+li{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+li.new{animation:in .4s both}
+.dot{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-weight:800;background:rgba(59,183,126,.15);color:var(--ok);flex:none}
+.dot.neg{background:rgba(232,89,111,.15);color:var(--bad)}
+li small{display:block}
+.x{width:30px;height:30px;border-radius:9px;color:var(--mute)}.x:hover{background:var(--line);color:var(--bad)}
+.foot{display:flex;gap:8px;justify-content:center;margin-top:26px}
+dialog{border:0;border-radius:24px;background:var(--card);color:var(--ink);width:min(480px,calc(100vw - 24px));max-height:92vh;padding:22px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
+dialog::backdrop{background:rgba(20,10,40,.45);backdrop-filter:blur(4px)}
+@keyframes pop{from{opacity:0;transform:scale(.9) translateY(20px)}to{opacity:1;transform:none}}
+dialog h2{font-size:22px;margin-bottom:14px}
+label{display:block;font-weight:600;font-size:13px;margin:12px 0 5px}
+input,select{width:100%;font:inherit;color:inherit;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px}
+input:focus,select:focus{outline:none;border-color:var(--acc)}
+input[type=color]{padding:2px;height:36px;width:44px}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--acc)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tabs,.seg{display:flex;background:var(--bg);border-radius:12px;padding:4px;gap:4px}
+.tabs button,.seg label{flex:1;text-align:center;padding:8px;border-radius:9px;font-weight:600;margin:0;font-size:14px;cursor:pointer}
+.tabs .on,.seg input:checked+span{background:var(--card);box-shadow:var(--sh)}
+.seg label{padding:0}.seg input{display:none}.seg span{display:block;padding:9px;border-radius:9px;transition:.2s}
+.seg input[value=add]:checked+span{background:var(--ok);color:#fff}
+.seg input[value=deduct]:checked+span{background:var(--bad);color:#fff}
+.picker{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.picker button{width:38px;height:38px;border-radius:11px;font-size:20px;background:var(--bg);transition:transform .15s}
+.picker button:hover{transform:scale(1.15)}
+.picker .sw{width:26px;height:26px;border-radius:50%}
+.picker .sel{outline:3px solid var(--acc);outline-offset:1px}
+.prev{display:flex;align-items:center;gap:12px;margin-top:12px}
+.hide{display:none!important}
+.chk{display:flex;align-items:center;gap:10px;margin-top:14px;font-weight:600}.chk label{margin:0}
+.btns{display:flex;gap:8px;margin-top:20px}.btns>*{flex:1}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,120px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;transition:transform .4s cubic-bezier(.2,1.2,.4,1);z-index:99;max-width:90vw}
+#toast.show{transform:translate(-50%,0)}
+.fab{position:fixed;right:20px;bottom:calc(22px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:20px;font-size:30px;padding:0}
+.top .r{display:flex;gap:8px;align-items:center}
+#acct{padding:8px 12px;font-size:13px}
+@media(max-width:520px){#newTop{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1><span>🐾</span> Stash</h1><div class="r"><button class="ghost hide" id="acct"></button><button class="btn hide" id="newTop">+ New goal</button></div></div>
+  <main id="view"></main>
+</div>
+<button class="btn fab" id="fab" aria-label="New goal">+</button>
+<div id="toast" role="status"></div>
+
+<dialog id="gd">
+  <form id="gf" method="dialog">
+    <h2 id="gt">New goal</h2>
+    <label for="gn">Goal name</label>
+    <input id="gn" required maxlength="40" placeholder="New PC, trip, emergency fund...">
+    <label>Icon</label>
+    <div class="tabs"><button type="button" data-t="emoji" class="on">Emoji + color</button><button type="button" data-t="photo">Photo</button></div>
+    <div id="tEmoji"><div class="picker" id="emojis"></div><div class="picker" id="swatches"></div></div>
+    <div id="tPhoto" class="hide">
+      <label for="gfile">Upload from this device</label><input id="gfile" type="file" accept="image/*">
+      <label for="gurl">Or paste an image link</label><input id="gurl" type="url" placeholder="https://...">
+    </div>
+    <div class="prev"><span id="prev"></span><small>Preview</small></div>
+    <div class="two">
+      <div><label for="gamt">Target amount</label><input id="gamt" type="number" min="0.01" step="any" required inputmode="decimal"></div>
+      <div><label for="gcur">Currency</label><select id="gcur"></select></div>
+    </div>
+    <div class="two">
+      <div><label for="gdate">Target date (optional)</label><input id="gdate" type="date"></div>
+      <div><label for="gfreq">Savings frequency</label><select id="gfreq"><option value="daily">Daily</option><option value="weekly" selected>Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option></select></div>
+    </div>
+    <div class="chk"><input type="checkbox" id="grem"><label for="grem">Remind me to save (optional)</label></div>
+    <div class="two hide" id="remBox"><div><label for="gday">Day</label><select id="gday"></select></div><div><label for="gtime">Time</label><input type="time" id="gtime" value="18:00"></div></div>
+    <div class="btns"><button type="button" class="ghost" data-close>Cancel</button><button class="btn" id="gsave">Save goal</button></div>
+  </form>
+</dialog>
+
+<dialog id="cd">
+  <form id="cf" method="dialog">
+    <h2>Add contribution</h2>
+    <div class="seg"><label><input type="radio" name="ct" value="add" checked><span>Add</span></label><label><input type="radio" name="ct" value="deduct"><span>Deduct</span></label></div>
+    <label for="camt" id="camtL">Amount</label><input id="camt" type="number" min="0.01" step="any" required inputmode="decimal">
+    <label for="cdate">Date</label><input id="cdate" type="date" required>
+    <label for="cnote">Note (optional)</label><input id="cnote" maxlength="80" placeholder="Where did it come from?">
+    <div class="btns"><button type="button" class="ghost" data-close>Cancel</button><button class="btn">Save</button></div>
+  </form>
+</dialog>
+<input type="file" id="imp" accept="application/json" class="hide">
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let S;try{S=JSON.parse(localStorage.getItem('stash.v1'))||{goals:[]}}catch{S={goals:[]}}
+const save=()=>{S.ts=Date.now();localStorage.setItem('stash.v1',JSON.stringify(S));window.cloudPush&&cloudPush()};
+window.stash={get:()=>S,set:d=>{S=d;localStorage.setItem('stash.v1',JSON.stringify(S));render()}};
+const FREQ={daily:['every day',1],weekly:['every week',7],biweekly:['every 2 weeks',14],monthly:['every month',30.4375]};
+const EMOJI=['💰','🎮','💻','📱','🎧','✈️','🏠','🚗','🎓','🎁','📷','👟','🐶','💍','🛡️','🎸','🏝️','⌚','🪙','⭐'];
+const COLORS=['#a98af0','#f58fc4','#ff9f7a','#ffd166','#6fd3a0','#5fc7e8','#7b8cff','#9aa0b4'];
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const money=(n,c)=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:c}).format(n)}catch{return c+' '+n.toFixed(2)}};
+const saved=g=>g.logs.reduce((a,l)=>a+l.amt,0);
+const pctOf=g=>Math.max(0,Math.min(100,saved(g)/g.target*100));
+const fdate=d=>new Date(d+'T00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+const sorted=g=>[...g.logs].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+const ico=(g,big)=>g.icon.src?`<img class="ico ${big?'big':''}" src="${esc(g.icon.src)}" alt="">`:`<div class="ico ${big?'big':''}" style="background:${esc(g.icon.color)}33">${esc(g.icon.emoji)}</div>`;
+
+/* ---------- views ---------- */
+const view=$('#view');
+function render(){
+  const m=location.hash.match(/^#g\/(\d+)/),g=m&&S.goals.find(x=>x.id==m[1]);
+  view.style.animation='none';void view.offsetWidth;view.style.animation='';
+  if(g){view.innerHTML=detail(g);$('#fab').classList.add('hide');$('#newTop').classList.add('hide')}
+  else{if(m)location.hash='';view.innerHTML=home();$('#fab').classList.remove('hide');$('#newTop').classList.remove('hide')}
+  setTimeout(()=>document.querySelectorAll('.bar i').forEach(e=>e.style.width=e.dataset.w+'%'),60);
+}
+function home(){
+  if(!S.goals.length)return`<div class="empty"><span class="em">🐱</span><h2>No goals yet</h2><p><small>Create your first savings goal to start tracking.</small></p><br><button class="btn" data-a="new">Create a goal</button></div>${foot()}`;
+  return S.goals.map(g=>{
+    const l=sorted(g)[0],s=saved(g);
+    return`<article class="card" data-a="open" data-id="${g.id}" tabindex="0">
+      <div class="row">${ico(g)}<div class="grow"><h3>${esc(g.name)}</h3><small>${g.date?'Target date: '+fdate(g.date):'No target date'}</small></div><b class="pct num">${Math.round(pctOf(g))}%</b></div>
+      <div class="bar"><i data-w="${pctOf(g)}" style="--c:${esc(g.icon.color)}"></i></div>
+      <div class="row sp"><span><b>${money(s,g.currency)}</b> <small>saved of ${money(g.target,g.currency)}</small></span></div>
+      <small class="rec">${l?`Latest: ${l.amt<0?'-':'+'}${money(Math.abs(l.amt),g.currency)} on ${fdate(l.date)}`:'No contributions yet'}</small></article>`}).join('')+foot();
+}
+const foot=()=>`<div class="foot"><button class="ghost" data-a="exp">Export backup</button><button class="ghost" data-a="imp">Import backup</button></div>`;
+function estimate(g){
+  const rem=g.target-saved(g);
+  if(rem<=0)return'You hit your goal. Time to celebrate 🎉';
+  if(!g.date)return null;
+  const days=(new Date(g.date+'T23:59:59')-new Date())/864e5;
+  if(days<=0)return`Your target date has passed. You still need ${money(rem,g.currency)}.`;
+  const [lab,per]=FREQ[g.freq],n=Math.max(1,Math.ceil(days/per));
+  return`Save about <b>${money(Math.ceil(rem/n*100)/100,g.currency)}</b> ${lab} for ${n} ${n>1?'saving sessions':'saving session'} to reach your goal by ${fdate(g.date)}.`;
+}
+const stat=(a,b)=>`<div class="stat"><small>${a}</small><b>${b}</b></div>`;
+function detail(g){
+  const s=saved(g),est=estimate(g),logs=sorted(g);
+  return`<button class="ghost" data-a="back">Back</button>
+  <section class="hero">${ico(g,1)}<h2>${esc(g.name)}</h2><div class="num">${money(s,g.currency)}</div><small>of ${money(g.target,g.currency)} (${Math.round(pctOf(g))}%)</small>
+  <div class="bar lg"><i data-w="${pctOf(g)}" style="--c:${esc(g.icon.color)}"></i></div></section>
+  <section class="grid">${stat('Remaining',money(Math.max(0,g.target-s),g.currency))}${stat('Target date',g.date?fdate(g.date):'Not set')}${stat('Savings frequency',FREQ[g.freq][0].replace('every ','Every '))}${stat('Reminder',g.remind.on?DAYS[g.remind.day]+' at '+g.remind.time:'Off')}</section>
+  ${est?`<div class="note">💡 ${est}</div>`:''}
+  <div class="acts"><button class="btn" data-a="add">+ Add contribution</button><button class="ghost" data-a="edit">Edit</button><button class="ghost danger" data-a="del">Delete</button></div>
+  <h4>Recent contributions</h4>
+  ${logs.length?`<ul>${logs.map(l=>`<li><span class="dot ${l.amt<0?'neg':''}">${l.amt<0?'-':'+'}</span><div class="grow"><b>${money(Math.abs(l.amt),g.currency)}</b><small>${fdate(l.date)}${l.note?' · '+esc(l.note):''}</small></div><button class="x" data-a="dl" data-l="${l.id}" aria-label="Delete entry">✕</button></li>`).join('')}</ul>`:'<small>Nothing logged yet. Add your first contribution.</small>'}`;
+}
+const curId=()=>+(location.hash.match(/^#g\/(\d+)/)||[])[1];
+const curGoal=()=>S.goals.find(g=>g.id===curId());
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-a]');
+  if(e.target.closest('[data-close]'))e.target.closest('dialog').close();
+  if(!t)return;
+  const a=t.dataset.a;
+  if(a==='open')location.hash='g/'+t.dataset.id;
+  else if(a==='back')location.hash='';
+  else if(a==='new')openGoal();
+  else if(a==='edit')openGoal(curGoal());
+  else if(a==='add')openContrib();
+  else if(a==='del'){if(confirm('Delete this goal and all its logs?')){S.goals=S.goals.filter(g=>g.id!==curId());save();location.hash='';render();toast('Goal deleted')}}
+  else if(a==='dl'){const g=curGoal();g.logs=g.logs.filter(l=>l.id!=t.dataset.l);save();render()}
+  else if(a==='exp'){const b=new Blob([JSON.stringify(S)],{type:'application/json'}),u=document.createElement('a');u.href=URL.createObjectURL(b);u.download='stash-backup.json';u.click()}
+  else if(a==='imp')$('#imp').click();
+});
+view.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.a==='open')e.target.click()});
+$('#fab').onclick=$('#newTop').onclick=()=>openGoal();
+window.addEventListener('hashchange',render);
+$('#imp').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.goals))throw 0;if(confirm('Replace current data with this backup?')){S=d;save();render();toast('Backup restored')}}catch{toast('That file is not a valid backup')}e.target.value=''};r.readAsText(f)};
+
+/* ---------- goal form ---------- */
+let draft;
+const CUR=(()=>{try{return Intl.supportedValuesOf('currency')}catch{return['USD','EUR','GBP','JPY','PHP','AUD','CAD','SGD','KRW','INR','CNY']}})();
+let dn;try{dn=new Intl.DisplayNames(undefined,{type:'currency'})}catch{}
+$('#gcur').innerHTML=CUR.map(c=>`<option value="${c}">${c}${dn?' - '+esc(dn.of(c)||''):''}</option>`).join('');
+$('#gday').innerHTML=DAYS.map((d,i)=>`<option value="${i}">${d}</option>`).join('');
+$('#emojis').innerHTML=EMOJI.map(m=>`<button type="button" data-e="${m}">${m}</button>`).join('');
+$('#swatches').innerHTML=COLORS.map(c=>`<button type="button" class="sw" data-c="${c}" style="background:${c}" aria-label="Color ${c}"></button>`).join('')+'<input type="color" id="gcol" aria-label="Custom color">';
+function prev(){
+  $('#prev').innerHTML=ico({icon:draft},1);
+  document.querySelectorAll('#emojis button').forEach(b=>b.classList.toggle('sel',!draft.src&&b.dataset.e===draft.emoji));
+  document.querySelectorAll('.sw').forEach(b=>b.classList.toggle('sel',b.dataset.c===draft.color));
+}
+function tab(t){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('#tEmoji').classList.toggle('hide',t!=='emoji');$('#tPhoto').classList.toggle('hide',t!=='photo')}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+$('#emojis').onclick=e=>{const b=e.target.closest('button');if(b){draft.emoji=b.dataset.e;draft.src='';prev()}};
+$('#swatches').onclick=e=>{const b=e.target.closest('.sw');if(b){draft.color=b.dataset.c;prev()}};
+$('#gcol').oninput=e=>{draft.color=e.target.value;prev()};
+$('#gurl').onchange=e=>{draft.src=e.target.value.trim();prev()};
+$('#gfile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,256/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);draft.src=c.toDataURL('image/jpeg',.82);prev()};im.src=r.result};r.readAsDataURL(f)};
+$('#grem').onchange=async e=>{
+  if(e.target.checked&&'Notification' in window&&Notification.permission!=='granted'){
+    const p=await Notification.requestPermission();
+    if(p!=='granted'){e.target.checked=false;toast('Allow notifications in your browser to use reminders')}
+  }else if(e.target.checked&&!('Notification' in window))toast('This browser has no notifications, you will see in-app reminders');
+  $('#remBox').classList.toggle('hide',!e.target.checked);
+};
+let editing=null;
+function openGoal(g){
+  editing=g||null;$('#gt').textContent=g?'Edit goal':'New goal';
+  draft=g?{...g.icon}:{emoji:'💰',color:COLORS[0],src:''};
+  $('#gn').value=g?g.name:'';$('#gamt').value=g?g.target:'';$('#gcur').value=g?g.currency:'USD';
+  $('#gdate').value=g?g.date||'':'';$('#gfreq').value=g?g.freq:'weekly';
+  $('#grem').checked=!!(g&&g.remind.on);$('#remBox').classList.toggle('hide',!$('#grem').checked);
+  $('#gday').value=g?g.remind.day:1;$('#gtime').value=g?g.remind.time:'18:00';
+  $('#gurl').value=draft.src&&draft.src.startsWith('http')?draft.src:'';$('#gfile').value='';
+  tab('emoji');prev();$('#gd').showModal();
+}
+$('#gf').onsubmit=()=>{
+  const o={name:$('#gn').value.trim(),icon:{...draft},target:+$('#gamt').value,currency:$('#gcur').value,date:$('#gdate').value,freq:$('#gfreq').value,
+    remind:{on:$('#grem').checked,day:+$('#gday').value,time:$('#gtime').value||'18:00'}};
+  if(!o.name||!(o.target>0))return;
+  if(editing)Object.assign(editing,o);else S.goals.unshift({id:Date.now(),logs:[],...o});
+  save();render();toast(editing?'Goal updated':'Goal created')
+};
+
+/* ---------- contribution form ---------- */
+function openContrib(){const g=curGoal();$('#camtL').textContent='Amount ('+g.currency+')';$('#camt').value='';$('#cnote').value='';$('#cdate').value=today();$('#cf').ct.value='add';$('#cd').showModal()}
+$('#cf').onsubmit=()=>{
+  const g=curGoal(),n=+$('#camt').value;if(!g||!(n>0))return;
+  g.logs.push({id:Date.now(),amt:$('#cf').ct.value==='deduct'?-n:n,date:$('#cdate').value||today(),note:$('#cnote').value.trim()});
+  save();render();toast($('#cf').ct.value==='deduct'?'Deducted':'Added');
+  if(saved(g)>=g.target)toast('Goal reached! 🎉');
+};
+
+/* ---------- reminders ---------- */
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),3200)}
+function check(){
+  const d=new Date(),hm=d.toTimeString().slice(0,5),key=d.toDateString();
+  let f={};try{f=JSON.parse(localStorage.getItem('stash.fired'))||{}}catch{}
+  S.goals.forEach(g=>{const r=g.remind;
+    if(r&&r.on&&r.day===d.getDay()&&hm>=r.time&&f[g.id]!==key){
+      f[g.id]=key;toast('Time to save for '+g.name+' 💰');
+      try{if('Notification' in window&&Notification.permission==='granted')new Notification('Time to save 💰',{body:'Add to "'+g.name+'"'})}catch{}
+    }});
+  localStorage.setItem('stash.fired',JSON.stringify(f));
+}
+setInterval(check,20000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
+render();check();
+</script>
+
+<script type="module">
+/* Cloud sync (optional). Paste your Firebase web app config below.
+   Until you do, the app simply stays local-only. */
+const cfg={apiKey:'AIzaSyAhnRSzRbxnNVC-kNLWT1E4G2ibvP-64GQ',authDomain:'stash-99a44.firebaseapp.com',projectId:'stash-99a44',appId:'1:812876068864:web:f9b3709e6b389d230800e5'};
+if(!cfg.apiKey.startsWith('PASTE')){
+  const V='10.12.2',G='https://www.gstatic.com/firebasejs/'+V+'/';
+  const {initializeApp}=await import(G+'firebase-app.js');
+  const {getAuth,onAuthStateChanged,signInWithPopup,GoogleAuthProvider,signOut}=await import(G+'firebase-auth.js');
+  const {getFirestore,doc,setDoc,onSnapshot}=await import(G+'firebase-firestore.js');
+  const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app),btn=document.getElementById('acct');
+  let ref=null,unsub=null,timer;
+  const push=()=>{if(!ref)return;const s=stash.get();setDoc(ref,{json:JSON.stringify(s),ts:s.ts||Date.now()}).catch(()=>toast('Sync failed, it will retry on your next change'))};
+  window.cloudPush=()=>{clearTimeout(timer);timer=setTimeout(push,400)};
+  btn.classList.remove('hide');btn.textContent='Sign in to sync';
+  btn.onclick=async()=>{
+    if(auth.currentUser){if(confirm('Sign out? Your data stays on this device.'))signOut(auth)}
+    else{try{await signInWithPopup(auth,new GoogleAuthProvider())}catch{toast('Sign-in did not finish')}}
+  };
+  onAuthStateChanged(auth,u=>{
+    if(unsub)unsub();unsub=null;ref=null;
+    if(!u){btn.textContent='Sign in to sync';return}
+    btn.textContent='Synced: '+(u.displayName||'you').split(' ')[0];
+    ref=doc(db,'users',u.uid);
+    unsub=onSnapshot(ref,snap=>{
+      const mine=stash.get().ts||0;
+      if(!snap.exists()){push();return}
+      const d=snap.data();
+      if(d.ts>mine)stash.set(JSON.parse(d.json));
+      else if(d.ts<mine)push();
+    });
+  });
+}
+</script>
+</body>
+</html>
