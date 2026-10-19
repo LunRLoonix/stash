@@ -457,16 +457,18 @@ const bub=el.querySelector('.sg-bubble'),tilt=el.querySelector('.sg-tilt'),faces
 /* ---- state ---- */
 const seen={};
 let tok=0,bt,homeT,ct,idleT,rt,fi=0;
-let lastSay=0,lastAct=0,lastDed=0,lastText='',lastKey2='',taps=[];
+let lastSay=0,lastAct=0,lastText='',lastKey2='',taps=[];
+const recentLines=[];const lineBags=new WeakMap();
+function choose(pool){let bag=lineBags.get(pool);if(!bag?.length){bag=[...pool];for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]]}lineBags.set(pool,bag)}return bag.pop()}
 let shown=false,flying=false,anim=null,bubbleOn=false;
 let pos={x:-120,y:-120};
 const cur={sel:null,mode:'above-r'};
 
 /* ---- face (only the nine cat faces) ---- */
 function drawFace(node,f){
-  const happy=['😸','😹','😽'].includes(f),wide=f==='🙀',sad=f==='😿';
+  const happy=['😸','😹','😽'].includes(f),wide=f==='🙀',sad=f==='😿',grumpy=f==='😾';
   node.dataset.mood=f;node.setAttribute('aria-hidden','true');
-  node.innerHTML='<span class="kitty"><span class="k-eyes"><i>'+(happy?'⌒':wide?'●':'♥')+'</i><i>'+(happy?'⌒':wide?'●':'×')+'</i></span><span class="k-mouth">'+(wide?'o':sad?'︵':'ω')+'</span><span class="k-bell"></span></span>';
+  node.innerHTML='<span class="kitty"><span class="k-eyes"><i>'+(happy?'⌒':wide?'●':f==='😻'?'♥':grumpy?'╲':'•')+'</i><i>'+(happy?'⌒':wide?'●':f==='😼'?'⌒':grumpy?'╱':'×')+'</i></span><span class="k-mouth">'+(wide?'o':sad?'︵':f==='😽'?'ε':f==='😹'?'▽':grumpy?'—':'ω')+'</span><span class="k-bell"></span></span>';
 }
 faces.forEach(n=>drawFace(n,'😺'));
 function setFace(f){
@@ -475,7 +477,7 @@ function setFace(f){
   const a=faces[fi];fi=1-fi;const b=faces[fi];
   drawFace(b,f);a.classList.remove('on');b.classList.add('on');
 }
-const restFace=()=>Date.now()-lastDed<60000?'😿':'😺';
+const restFace=()=>'😺';
 
 /* ---- positions ---- */
 function setPos(x,y){pos={x,y};el.style.transform=`translate(${x}px,${y}px)`}
@@ -573,8 +575,8 @@ function confetti(n){
 async function say(o){
   if(!SG.on&&!o.force)return;
   const my=++tok;
-  clearTimeout(bt);clearTimeout(homeT);hideBubble();
-  lastSay=Date.now();lastText=o.msg;
+  clearTimeout(bt);clearTimeout(homeT);clearTimeout(ct);hideBubble();
+  lastSay=Date.now();lastText=o.msg;recentLines.push(o.msg);if(recentLines.length>12)recentLines.shift();
   ensureShown();
   if(dialogOpen())raise();
   setFace(o.mood);
@@ -597,15 +599,20 @@ async function say(o){
     homeT=setTimeout(goHome,7000);
   },ms);
 }
+function resetReaction(){
+  tok++;clearTimeout(bt);clearTimeout(homeT);clearTimeout(ct);
+  hideBubble();setFace(restFace());
+  if(anim){const r=el.getBoundingClientRect();setPos(r.left,r.top);const old=anim;anim=null;flying=false;old.cancel()}
+  cur.sel=null;cur.mode='above-r';
+}
 function goHome(){
   if(!SG.on||!shown||dialogOpen()||bubbleOn)return;
   cur.sel=null;const s=rest();flyTo(s.x,s.y);
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){tok++;clearTimeout(bt);clearTimeout(homeT);hideBubble();goHome()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dialogOpen()){resetReaction();goHome()}});
 window.visualViewport?.addEventListener('resize',reposition);
 bub.addEventListener('click',()=>{
-  clearTimeout(bt);hideBubble();setFace(restFace());
-  clearTimeout(homeT);homeT=setTimeout(goHome,5000);
+  resetReaction();goHome();
 });
 
 /* ---- facts about a goal ---- */
@@ -684,6 +691,12 @@ const RULES=[
   {id:'any_joke',scr:'*',pri:1,cd:6e4,test:()=>({}),msgs:JOKES,sel:null}
 ];
 
+const EXTRA_LINES={"h_empty": ["I brought the paws. You bring the dream. What shall we save for?", "Your first goal can be tiny. We are building a habit, not a spaceship. Yet.", "A wish with a savings plan? Now that is my kind of magic.", "Hello, future saver. Shall we give your next little adventure a name?"], "h_ded": ["A few withdrawals from {name}. We can adjust the plan if life has changed.", "{name} is still here. A smaller next step is perfectly okay.", "Money has a job to do. If {name} helped you today, that counts too."], "h_near": ["{pct}% on {name}. My celebration paws are on standby.", "Only {rem} left. The finish line has entered pouncing distance.", "{name} is nearly funded. I am practicing my victory wiggle."], "h_done": ["{name}: funded. Your patience did that.", "A completed dream in your stash. Please enjoy this very proud purr.", "{name} made it! That deserves a proper little celebration."], "h_behind": ["The timeline for {name} looks tight. Editing the date is an option.", "Plans can change. Let us give {name} a pace that fits your life."], "h_stale": ["{name} can wait until you are ready. Tiny steps still count.", "A little check-in with {name}? No deposit required.", "It has been a while. Would a smaller target make {name} easier to restart?"], "h_blank": ["{name} starts with one contribution. The amount can be small.", "An empty bar is just a bar waiting for its origin story."], "h_welcome": ["{greet}! Your {count} little dreams are right where you left them.", "Welcome back. I have been keeping the goals company.", "{greet}! Want to check on a goal, or just admire the progress?"], "h_avg": ["{count} goals, lots of possibilities. One step at a time.", "Your average progress is {avg}%. Quiet consistency looks good on you."], "d_done": ["{name} is fully funded. You followed through, and it shows.", "{saved} saved. I am officially issuing a victory purr.", "The bar is full. My tiny cat heart is also full."], "d_ded": ["Withdrawals happen. We can rebuild {name} at your pace.", "{name} is a plan, not a test. You can adjust it.", "You used some savings. Let us make the next step manageable."], "d_over": ["A date can move. The progress you made still counts.", "Want to give {name} a little more time? Edit is right there."], "d_close": ["{days} days to go. A realistic new date is okay if you need one.", "A quick check-in: {rem} remains. Let us keep the plan comfortable."], "d_behind": ["The pace looks a bit tight. A new date might help.", "A slower route to {name} is still a route to {name}."], "d_stale": ["No rush. You can restart {name} with a small contribution.", "Welcome back to {name}. The progress you made is still yours."], "d_ahead": ["Ahead of schedule? Look at you making room for future you.", "The calendar is chasing your savings bar. Excellent plot twist."], "d_big": ["{pct}% done. I can practically hear the victory bell.", "{rem} left on {name}. That dream is getting wonderfully close."], "d_half": ["More than halfway. Past you would be pretty pleased.", "{pct}% funded. That is a lot of little decisions adding up."], "d_recent": ["A fresh contribution! Thank you for feeding the progress bar.", "Yesterday's little effort is today's visible progress.", "Another deposit in the books. A very respectable little purr."], "d_quarter": ["{pct}% is a real start. Keep the next step simple.", "The bar is growing roots. Good steady work on {name}."], "d_start": ["The beginning is allowed to look small. Keep going gently.", "{name} has started. That is already more than a wish.", "A few coins at a time is a perfectly valid strategy."], "d_blank": ["First contributions get a complimentary happy cat wiggle.", "A little deposit would give this dream its first pawprint.", "No pressure to start big. We just need a beginning."], "d_tip": ["For this timeline, about {per} per session is the suggested pace.", "Your savings plan suggests {per}. Adjust the date if that feels too steep."], "any_joke": [["😼", "My financial strategy? Sit on the wallet so it cannot leave."], ["😹", "I checked the budget. The imaginary tuna fund is thriving."], ["😺", "A tiny deposit is still bigger than the deposit you only thought about."], ["😽", "This is your reminder to unclench your jaw. Yes, you, spreadsheet gremlin."], ["😼", "Browsing is free. The checkout button is where the plot gets expensive."], ["😸", "You can admire the shiny thing and leave it in the cart. Powerful behavior."], ["😹", "I have nine lives and exactly zero rent payments. Please do not copy my budget."], ["😺", "Future you called. They appreciate the effort."], ["😼", "Paw on the budget. Eyes on the dream."], ["😽", "A water break? I will keep the progress bars warm."], ["😹", "My shopping list says box. The contents are negotiable."], ["😸", "Saving up for something fun is allowed. Joy gets a budget too."]]};
+for(const r of RULES){if(EXTRA_LINES[r.id])r.msgs.push(...EXTRA_LINES[r.id])}
+for(const id of ['h_ded','d_ded','h_behind','d_behind','h_stale','d_stale']){
+  const rule=RULES.find(r=>r.id===id);rule.msgs=[...EXTRA_LINES[id]];rule.mood='😺';
+}
+
 function pick(min,force){
   const c=ctx(),now=Date.now(),cands=[];
   for(const r of RULES){
@@ -702,12 +715,15 @@ function pick(min,force){
 }
 function deliver(p){
   const {r,g,i,key}=p,v=vars(g,i);
-  let mood=r.mood,txt='';
-  for(let t=0;t<4;t++){
-    let m=rnd(r.msgs);if(typeof m==='function')m=m(v);
-    if(Array.isArray(m)){mood=m[0];txt=fmt(m[1],v)}else{mood=r.mood;txt=fmt(m,v)}
-    if(txt!==lastText)break;
+  const options=r.msgs.map(m=>{if(typeof m==='function')m=m(v);return Array.isArray(m)?{mood:m[0],txt:fmt(m[1],v)}:{mood:r.mood,txt:fmt(m,v)}});
+  const available=options.filter(m=>!recentLines.includes(m.txt));
+  let picked;
+  for(let n=0;n<r.msgs.length;n++){
+    let m=choose(r.msgs);if(typeof m==='function')m=m(v);
+    const candidate=Array.isArray(m)?{mood:m[0],txt:fmt(m[1],v)}:{mood:r.mood,txt:fmt(m,v)};
+    if(!available.length||available.some(x=>x.txt===candidate.txt)){picked=candidate;break}
   }
+  const {mood,txt}=picked||available[0]||options[0];
   seen[key]=Date.now();lastKey2=key;
   say({mood,msg:txt,sel:typeof r.sel==='function'?r.sel(g):r.sel,mode:r.mode,fx:r.fx});
 }
@@ -747,12 +763,11 @@ function react(e){
       if(abs>=g.target*.2)return go('🙀','Whoa, {amt} in one go! Who are you and what did you do with the old you?',v);
       return go(...rnd([['😽','Thank you! {amt} added to {name}.'],['😸','Nice one. {pct}% there now.'],['😽',"That's the stuff. {rem} to go."]]).concat([v]));
     }
-    lastDed=Date.now();
     let ded=0;for(const l of sorted(g)){if(l.amt<0)ded++;else break}
-    if(after<=0&&before>0)return go('🙀','{name} is empty now! What happened?!',v);
-    if(ded>=3)return go('😾','{n} withdrawals in a row. I am getting grumpy.',Object.assign({},v,{n:ded}));
-    if(before>0&&abs>=before*.5)return go('🙀','Whoa, that is a big withdrawal from {name}. Everything okay?',v);
-    return go(...rnd([['😿','{amt} taken out of {name}. It happens. Let us build it back.'],['😿',"Withdrawal noted. I'll pretend I didn't see that."]]).concat([v]));
+    if(after<=0&&before>0)return go('😺',rnd(['{name} is back at zero. We can start again when you are ready.','Your savings did their job. A fresh start for {name} whenever you want.']),v);
+    if(ded>=3)return go('😺',rnd(['A few withdrawals lately. Would a different timeline help {name}?','Life has needed a little extra lately. Your savings plan can adapt.']),v);
+    if(before>0&&abs>=before*.5)return go('🙀',rnd(['{amt} withdrawn. That is a big change, but the plan can adapt.','Balance updated for {name}. We will take the next step at your pace.']),v);
+    return go(...rnd([['😿','{amt} taken out of {name}. It happens. Let us build it back.'],['😺',"{amt} withdrawn. No guilt, just an updated plan."],['😺','{name} is at {pct}% now. Your next step can be small.'],['😽','Savings are for using too. {amt} recorded.'],['😼','The numbers are updated. I still believe in {name}.']]).concat([v]));
   }
 }
 function afterRender(){
@@ -763,41 +778,54 @@ function afterRender(){
   syncBtn();
   if(!SG.on)return;
   if(evs.length===1){clearTimeout(ct);react(evs[0]);return}
-  if(nav){tok++;clearTimeout(bt);clearTimeout(homeT);hideBubble();scheduleConsider();return}
+  if(nav){resetReaction();goHome();scheduleConsider();return}
   reposition();
 }
 function scheduleConsider(){
   clearTimeout(ct);
   ct=setTimeout(()=>{
-    if(!SG.on||dialogOpen()||document.hidden||Date.now()-lastSay<5000)return;
+    if(!SG.on||dialogOpen()||document.hidden)return;
+    const wait=5000-(Date.now()-lastSay);
+    if(wait>0){ct=setTimeout(scheduleConsider,wait);return}
     const p=pick(3);if(p)deliver(p);
   },1300);
 }
 new MutationObserver(()=>{clearTimeout(rt);rt=setTimeout(afterRender,90)}).observe(document.querySelector('#view'),{childList:true});
 ['pointerdown','keydown','submit'].forEach(t=>document.addEventListener(t,()=>{lastAct=Date.now()},true));
 
-/* ---- dialogs: perch on top of them, react to Deduct ---- */
+/* Dialog layer changes happen synchronously, before the browser paints. */
+let activeDialog=null,dialogEpoch=0,perchFrame=0;
+function dialogShown(d,s){
+  activeDialog=d;const epoch=++dialogEpoch;
+  resetReaction();
+  if(!SG.on||!shown)return;
+  raise();cur.sel=s;cur.mode='above-r';
+  const started=performance.now();
+  const track=()=>{
+    if(epoch!==dialogEpoch||!d.open||!SG.on)return;
+    // Follow the sheet during its opening animation without a second flight.
+    if(cur.sel===s&&!flying){const p=spot(s,'above-r');setPos(p.x,p.y);placeBubble(p)}
+    if(performance.now()-started<420)perchFrame=requestAnimationFrame(track);
+  };
+  track();
+}
+function dialogClosed(d){
+  if(activeDialog!==d)return;
+  activeDialog=null;dialogEpoch++;cancelAnimationFrame(perchFrame);
+  resetReaction();goHome();scheduleConsider();
+}
 ['#gd','#cd'].forEach(s=>{
-  const d=document.querySelector(s);
-  new MutationObserver(()=>{
-    if(d.open){
-      if(!SG.on||!shown)return;
-      tok++;clearTimeout(bt);clearTimeout(homeT);hideBubble();
-      setTimeout(async()=>{
-        if(!d.open||!SG.on)return;
-        raise();cur.sel=s;cur.mode='above-r';
-        const p=spot(s,'above-r');await flyTo(p.x,p.y);
-      },380);
-    }else{
-      setTimeout(()=>{if(!dialogOpen()&&!bubbleOn&&Date.now()-lastSay>1500)goHome()},450);
-    }
-  }).observe(d,{attributes:true,attributeFilter:['open']});
+  const d=document.querySelector(s),open=d.showModal.bind(d),close=d.close.bind(d);
+  d.showModal=function(...args){open(...args);dialogShown(d,s)};
+  d.close=function(...args){close(...args);dialogClosed(d)};
+  // Native Escape and method=dialog submissions do not call the JS wrapper.
+  d.addEventListener('close',()=>{if(!d.open)dialogClosed(d)});
 });
 document.querySelector('#cf').addEventListener('change',e=>{
   if(!e.target||e.target.name!=='ct')return;
   const c=ctx(),v=vars(c.g,c.i);
-  if(e.target.value==='deduct')say({mood:'🙀',msg:fmt(rnd(['Taking money out? Are you sure about that?','A withdrawal? Think of {name}!']),v),sel:'#cd',mode:'above-r'});
-  else say({mood:'😸',msg:"Back to adding. That's the spirit!",sel:'#cd',mode:'above-r'});
+  if(e.target.value==='deduct')say({mood:'🙀',msg:fmt(choose(['Taking some out? I will keep the balance tidy.','Savings are here when you need them. How much today?','A withdrawal for {name}. Let us record it accurately.','Life happens. We can adjust the plan after this.']),v),sel:'#cd',mode:'above-r'});
+  else say({mood:'😸',msg:choose(['Back to adding. I am ready for the happy wiggle.','A little top-up? Excellent.','Another pawprint toward the dream.','Deposit mode: activated. Tiny celebration: pending.']),sel:'#cd',mode:'above-r'});
 });
 
 /* ---- reminders, taps, toggle ---- */
