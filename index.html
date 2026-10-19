@@ -87,6 +87,27 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--acc)}
 #toast.show{transform:translate(-50%,0)}
 .fab{position:fixed;right:20px;bottom:calc(22px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:20px;font-size:30px;padding:0}
 .top .r{display:flex;gap:8px;align-items:center}
+html{-webkit-text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+input,select{font-size:16px;min-height:46px;min-width:0;-webkit-appearance:none;appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--mute) 50%),linear-gradient(135deg,var(--mute) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px;text-overflow:ellipsis}
+input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;min-height:0;width:22px;height:22px}
+input[type=color]{-webkit-appearance:auto;appearance:auto;min-height:36px}
+input[type=file]{font-size:14px;padding:9px}
+input[type=date],input[type=time]{display:block;text-align:left}
+.two>div{min-width:0}
+@media(hover:none){.card:hover,.btn:hover,.picker button:hover{transform:none}}
+@media(max-width:520px){
+.wrap{padding:16px 14px 120px}
+.top h1{font-size:26px}
+#acct{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hero .num{font-size:38px}.ico.big{width:72px;height:72px;font-size:36px}
+.acts .btn{min-width:100%}
+dialog{width:100%;max-width:100%;margin:auto 0 0;border-radius:26px 26px 0 0;max-height:90dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+dialog[open]{animation:sheet .35s cubic-bezier(.2,.9,.3,1)}
+.btns .btn,.btns .ghost{min-height:48px}
+}
+@keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
 #acct{padding:8px 12px;font-size:13px}
 @media(max-width:520px){#newTop{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
