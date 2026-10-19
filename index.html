@@ -83,7 +83,8 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--acc)}
 .hide{display:none!important}
 .chk{display:flex;align-items:center;gap:10px;margin-top:14px;font-weight:600}.chk label{margin:0}
 .btns{display:flex;gap:8px;margin-top:20px}.btns>*{flex:1}
-#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,120px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;transition:transform .4s cubic-bezier(.2,1.2,.4,1);z-index:99;max-width:90vw}
+.hero .ico{margin:0 auto}
+#toast{position:fixed;inset:auto;top:calc(12px + env(safe-area-inset-top,0px));left:50%;margin:0;border:0;width:max-content;max-width:90vw;height:auto;overflow:visible;transform:translate(-50%,-160%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;box-shadow:var(--sh);transition:transform .4s cubic-bezier(.2,1.2,.4,1);z-index:99}
 #toast.show{transform:translate(-50%,0)}
 .fab{position:fixed;right:20px;bottom:calc(22px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:20px;font-size:30px;padding:0}
 .top .r{display:flex;gap:8px;align-items:center}
@@ -133,7 +134,7 @@ input[type=checkbox]:checked::after{content:"✓";color:#fff;font-size:16px;font
   <main id="view"></main>
 </div>
 <button class="btn fab" id="fab" aria-label="New goal">+</button>
-<div id="toast" role="status"></div>
+<div id="toast" role="status" popover="manual"></div>
 
 <dialog id="gd">
   <form id="gf" method="dialog">
@@ -315,7 +316,12 @@ $('#cf').onsubmit=()=>{
 };
 
 /* ---------- reminders ---------- */
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),3200)}
+function toast(m){
+  const t=$('#toast');clearTimeout(toast.t);clearTimeout(toast.h);t.textContent=m;
+  try{t.hidePopover()}catch{}try{t.showPopover()}catch{}
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  toast.t=setTimeout(()=>{t.classList.remove('show');toast.h=setTimeout(()=>{try{t.hidePopover()}catch{}},450)},3200);
+}
 function check(){
   const d=new Date(),hm=d.toTimeString().slice(0,5),key=d.toDateString();
   let f={};try{f=JSON.parse(localStorage.getItem('stash.fired'))||{}}catch{}
