@@ -126,6 +126,27 @@ input[type=checkbox]:checked::after{content:"✓";color:#fff;font-size:16px;font
 #prev .ico.big{width:56px;height:56px;font-size:30px;border-radius:18px}
 @media(hover:none) and (max-width:520px){.fab{bottom:calc(84px + env(safe-area-inset-bottom,0px));right:16px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* ---------- Stashley ---------- */
+.foot{flex-wrap:wrap}
+#stashley{position:fixed;inset:0 auto auto 0;margin:0;padding:0;border:0;background:none;overflow:visible;width:52px;height:52px;color:var(--ink);transform:translate(-120px,-120px);pointer-events:none;will-change:transform}
+.sg-cat{pointer-events:auto;display:block;width:52px;height:52px;padding:0;border-radius:50%;position:relative;-webkit-tap-highlight-color:transparent;transition:scale .15s}
+.sg-cat:active{scale:.9}
+.sg-hover{display:block;width:100%;height:100%;position:relative;animation:sgbob 2.8s ease-in-out infinite}
+.sg-tilt{display:block;width:100%;height:100%;position:relative}
+.sg-face{position:absolute;inset:0;display:grid;place-items:center;font-size:38px;line-height:1;opacity:0;transform:scale(.55) rotate(-14deg);transition:opacity .22s ease,transform .32s cubic-bezier(.2,1.4,.4,1);filter:drop-shadow(0 5px 6px rgba(70,40,140,.28))}
+.sg-face.on{opacity:1;transform:none}
+.sg-shadow{position:absolute;left:13px;right:13px;bottom:-9px;height:8px;border-radius:50%;background:rgba(40,20,80,.24);filter:blur(2px);pointer-events:none;animation:sgsh 2.8s ease-in-out infinite}
+@keyframes sgbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes sgsh{0%,100%{transform:scaleX(1);opacity:.9}50%{transform:scaleX(.7);opacity:.5}}
+.sg-bubble{position:absolute;bottom:calc(100% + 12px);width:max-content;max-width:240px;background:var(--card);color:var(--ink);padding:10px 13px;border-radius:16px;box-shadow:var(--sh),0 0 0 1.5px var(--line);font:500 14px/1.38 Figtree,system-ui,sans-serif;opacity:0;transform:translateY(6px) scale(.94);transition:opacity .2s ease,transform .26s cubic-bezier(.2,1.3,.4,1);pointer-events:none;cursor:pointer}
+.sg-bubble.show{opacity:1;transform:none;pointer-events:auto}
+.sg-bubble.l{left:0;transform-origin:bottom left}
+.sg-bubble.r{right:0;transform-origin:bottom right}
+.sg-bubble.below{bottom:auto;top:calc(100% + 12px)}
+.sg-bubble::after{content:"";position:absolute;width:12px;height:12px;background:var(--card);border-radius:3px;transform:rotate(45deg);bottom:-5px}
+.sg-bubble.l::after{left:20px}.sg-bubble.r::after{right:20px}
+.sg-bubble.below::after{bottom:auto;top:-5px}
+.sg-conf{position:absolute;left:23px;top:23px;width:7px;height:9px;border-radius:2px;pointer-events:none}
 </style>
 </head>
 <body>
@@ -212,7 +233,7 @@ function home(){
       <div class="row sp"><span><b>${money(s,g.currency)}</b> <small>saved of ${money(g.target,g.currency)}</small></span></div>
       <small class="rec">${l?`Latest: ${l.amt<0?'-':'+'}${money(Math.abs(l.amt),g.currency)} on ${fdate(l.date)}`:'No contributions yet'}</small></article>`}).join('')+foot();
 }
-const foot=()=>`<div class="foot"><button class="ghost" data-a="exp">Export backup</button><button class="ghost" data-a="imp">Import backup</button></div>`;
+const foot=()=>`<div class="foot"><button class="ghost" data-a="exp">Export backup</button><button class="ghost" data-a="imp">Import backup</button><button class="ghost" data-a="mascot" id="mascotBtn" aria-pressed="true">Stashley: on</button></div>`;
 function estimate(g){
   const rem=g.target-saved(g);
   if(rem<=0)return'You hit your goal. Time to celebrate 🎉';
@@ -334,6 +355,413 @@ function check(){
 }
 setInterval(check,20000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
 render();check();
+</script>
+
+<script>
+(()=>{
+/* ---------- Stashley, the savings cat (no AI, just rules) ---------- */
+const FACES=['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
+const W=52;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const RM=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+const dialogOpen=()=>!!document.querySelector('dialog[open]');
+const SG={on:(()=>{try{return localStorage.getItem('stash.mascot')!=='off'}catch{return true}})()};
+
+/* ---- element ---- */
+const el=document.createElement('div');
+el.id='stashley';el.setAttribute('popover','manual');el.style.display='none';
+el.innerHTML='<div class="sg-bubble l" aria-live="polite"></div><button type="button" class="sg-cat" aria-label="Stashley the cat. Tap for another message"><span class="sg-hover"><span class="sg-tilt"><span class="sg-face on">😺</span><span class="sg-face"></span></span></span></button><i class="sg-shadow"></i>';
+document.body.appendChild(el);
+const bub=el.querySelector('.sg-bubble'),tilt=el.querySelector('.sg-tilt'),faces=[...el.querySelectorAll('.sg-face')];
+
+/* ---- state ---- */
+const seen={};
+let tok=0,bt,homeT,ct,idleT,rt,fi=0;
+let lastSay=0,lastAct=0,lastDed=0,lastText='',lastKey2='',taps=[];
+let shown=false,flying=false,anim=null,bubbleOn=false;
+let pos={x:-120,y:-120};
+const cur={sel:null,mode:'above-r'};
+
+/* ---- face (only the nine cat faces) ---- */
+function setFace(f){
+  if(!FACES.includes(f))f='😺';
+  if(faces[fi].textContent===f)return;
+  const a=faces[fi];fi=1-fi;const b=faces[fi];
+  b.textContent=f;a.classList.remove('on');b.classList.add('on');
+}
+const restFace=()=>Date.now()-lastDed<60000?'😿':'😺';
+
+/* ---- positions ---- */
+function setPos(x,y){pos={x,y};el.style.transform=`translate(${x}px,${y}px)`}
+const rest=()=>({x:14,y:innerHeight-W-22});
+function spot(sel,mode,follow){
+  const vw=innerWidth,vh=innerHeight,dlg=!!sel&&sel[0]==='#';
+  const top=dlg?6:((document.querySelector('.top')||{getBoundingClientRect:()=>({bottom:0})}).getBoundingClientRect().bottom+4);
+  const t=sel&&document.querySelector(sel);
+  if(t){
+    const r=t.getBoundingClientRect();
+    if(r.width&&(follow||(r.bottom>top&&r.top<vh))){
+      const x=mode==='in-br'?r.right-W-6:r.right-W-4;
+      const y=mode==='in-br'?r.bottom-W-6:r.top-W-4;
+      return{x:clamp(x,8,vw-W-8),y:clamp(y,top,vh-W-(dlg?6:20))};
+    }
+  }
+  return rest();
+}
+function placeBubble(p){
+  const vw=innerWidth,right=(p.x+W/2)>vw/2,below=p.y<130;
+  bub.classList.toggle('r',right);bub.classList.toggle('l',!right);bub.classList.toggle('below',below);
+  bub.style.maxWidth=Math.max(140,Math.min(250,right?p.x+W-10:vw-p.x-10))+'px';
+}
+function reposition(){
+  if(!shown||flying)return;
+  const s=cur.sel?spot(cur.sel,cur.mode,true):rest();
+  setPos(s.x,s.y);placeBubble(s);
+}
+
+/* ---- show / hide ---- */
+function ensureShown(){
+  if(shown)return;
+  shown=true;el.style.display='';
+  setPos(-90,rest().y-60);
+  try{el.showPopover()}catch{}
+}
+function raise(){try{el.hidePopover()}catch{}try{el.showPopover()}catch{}}
+function hideAll(){
+  tok++;clearTimeout(bt);clearTimeout(homeT);hideBubble();
+  shown=false;el.style.display='none';
+  try{el.hidePopover()}catch{}
+}
+function showBubble(t){bub.textContent=t;placeBubble(pos);bub.classList.add('show');bubbleOn=true}
+function hideBubble(){bub.classList.remove('show');bubbleOn=false}
+
+/* ---- flight: a curved, fluttery path with banking and squash ---- */
+function flyTo(x1,y1){
+  return new Promise(res=>{
+    const r=el.getBoundingClientRect(),x0=r.left,y0=r.top;
+    if(anim){el.style.transform=`translate(${x0}px,${y0}px)`;anim.cancel();anim=null;flying=false}
+    const dist=Math.hypot(x1-x0,y1-y0);
+    if(dist<6){setPos(x1,y1);return res()}
+    if(RM()){
+      const a=el.animate([{opacity:1},{opacity:0}],{duration:120,fill:'forwards'});
+      a.onfinish=()=>{setPos(x1,y1);const b=el.animate([{opacity:0},{opacity:1}],{duration:120,fill:'forwards'});b.onfinish=()=>{b.cancel();a.cancel();res()}};
+      return;
+    }
+    const nx=-(y1-y0)/dist,ny=(x1-x0)/dist,bend=(Math.random()<.5?-1:1)*Math.min(120,dist*.3);
+    const cx=(x0+x1)/2+nx*bend,cy=(y0+y1)/2+ny*bend-30;
+    const N=26,frames=[];
+    for(let k=0;k<=N;k++){
+      const t=k/N,e=t*t*(3-2*t),u=1-e;
+      let x=u*u*x0+2*u*e*cx+e*e*x1,y=u*u*y0+2*u*e*cy+e*e*y1;
+      const w=Math.sin(t*Math.PI)*Math.sin(t*Math.PI*5)*5;
+      x+=nx*w;y+=ny*w;
+      frames.push({transform:`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`});
+    }
+    const dur=Math.min(1700,Math.max(750,550+dist*.85)),dir=x1>=x0?1:-1;
+    flying=true;
+    const a=el.animate(frames,{duration:dur,easing:'linear',fill:'forwards'});
+    anim=a;
+    tilt.animate([
+      {transform:'rotate(0) scale(1)'},
+      {transform:`rotate(${dir*14}deg) scale(1.08,.94)`,offset:.25},
+      {transform:`rotate(${dir*6}deg) scale(.95,1.06)`,offset:.55},
+      {transform:`rotate(${dir*10}deg) scale(1.06,.95)`,offset:.8},
+      {transform:'rotate(0) scale(1)'}
+    ],{duration:dur,easing:'ease-in-out'});
+    a.onfinish=()=>{if(anim===a){setPos(x1,y1);a.cancel();anim=null;flying=false}res()};
+    a.oncancel=()=>res();
+  });
+}
+function confetti(n){
+  if(RM())return;
+  const cols=['#a98af0','#f58fc4','#ff9f7a','#ffd166','#6fd3a0','#5fc7e8'];
+  for(let k=0;k<n;k++){
+    const p=document.createElement('i');p.className='sg-conf';p.style.background=cols[k%cols.length];el.appendChild(p);
+    const a=Math.random()*Math.PI*2,d=50+Math.random()*90,dx=Math.cos(a)*d,dy=Math.sin(a)*d-40;
+    p.animate([
+      {transform:'translate(0,0) rotate(0)',opacity:1},
+      {transform:`translate(${dx}px,${dy}px) rotate(${Math.random()*360}deg)`,opacity:1,offset:.45},
+      {transform:`translate(${dx*1.1}px,${dy+120}px) rotate(${Math.random()*720}deg)`,opacity:0}
+    ],{duration:1300+Math.random()*500,easing:'cubic-bezier(.2,.7,.4,1)'}).onfinish=()=>p.remove();
+  }
+}
+
+/* ---- say: change face, fly to the anchor, then show the bubble ---- */
+async function say(o){
+  if(!SG.on&&!o.force)return;
+  const my=++tok;
+  clearTimeout(bt);clearTimeout(homeT);hideBubble();
+  lastSay=Date.now();lastText=o.msg;
+  ensureShown();
+  if(dialogOpen())raise();
+  setFace(o.mood);
+  const to=spot(o.sel,o.mode);
+  await flyTo(to.x,to.y);
+  if(my!==tok)return;
+  cur.sel=o.sel||null;cur.mode=o.mode||'above-r';
+  showBubble(o.msg);
+  if(o.fx==='confetti')confetti(40);else if(o.fx==='sparkle')confetti(14);
+  if(o.fx==='zoom'){
+    await sleep(1300);if(my!==tok)return;
+    hideBubble();
+    for(let k=0;k<3;k++){await flyTo(8+Math.random()*(innerWidth-W-16),80+Math.random()*(innerHeight-220));if(my!==tok)return}
+    setFace(restFace());goHome();return;
+  }
+  const ms=clamp(2200+o.msg.length*60,3600,9000);
+  bt=setTimeout(()=>{
+    if(my!==tok)return;
+    hideBubble();setFace(restFace());
+    homeT=setTimeout(goHome,7000);
+  },ms);
+}
+function goHome(){
+  if(!SG.on||!shown||dialogOpen()||bubbleOn)return;
+  cur.sel=null;const s=rest();flyTo(s.x,s.y);
+}
+bub.addEventListener('click',()=>{
+  clearTimeout(bt);hideBubble();setFace(restFace());
+  clearTimeout(homeT);homeT=setTimeout(goHome,5000);
+});
+
+/* ---- facts about a goal ---- */
+function info(g){
+  const s=saved(g),rem=g.target-s,pct=clamp(s/g.target*100,0,100),logs=sorted(g);
+  let ded=0;for(const l of logs){if(l.amt<0)ded++;else break}
+  const la=logs.find(l=>l.amt>0);
+  const since=la?Math.round((Date.parse(today()+'T00:00')-Date.parse(la.date+'T00:00'))/864e5):null;
+  const age=g.id>1e12?Math.floor((Date.now()-g.id)/864e5):0;
+  let daysLeft=null,exp=null,per=null;
+  if(g.date){
+    const end=new Date(g.date+'T23:59:59').getTime();
+    daysLeft=Math.ceil((end-Date.now())/864e5);
+    if(g.id>1e12&&end>g.id)exp=clamp((Date.now()-g.id)/(end-g.id)*100,0,100);
+    if(daysLeft>0&&rem>0){
+      const [lab,p]=FREQ[g.freq]||FREQ.weekly,k=Math.max(1,Math.ceil(daysLeft/p));
+      per=money(Math.ceil(rem/k*100)/100,g.currency)+' '+lab;
+    }
+  }
+  return{s,rem,pct,logs,ded,since,age,daysLeft,per,nlogs:logs.length,last:logs[0],
+    behind:exp!=null&&age>=3&&rem>0&&exp-pct>15,
+    ahead:exp!=null&&age>=3&&rem>0&&pct>0&&pct-exp>10};
+}
+const short=n=>n.length>22?n.slice(0,21)+'…':n;
+const greet=()=>{const h=new Date().getHours();return h>=5&&h<12?'Good morning':h>=12&&h<18?'Good afternoon':h>=18&&h<23?'Good evening':'Hello, night owl'};
+const fmt=(s,v)=>s.replace(/\{(\w+)\}/g,(_,k)=>v[k]??'');
+function vars(g,i){
+  const n=S.goals.length,v={greet:greet(),count:n,avg:n?Math.round(S.goals.reduce((a,x)=>a+pctOf(x),0)/n):0};
+  if(g){i=i||info(g);Object.assign(v,{name:short(g.name),pct:Math.round(i.pct),rem:money(Math.max(0,i.rem),g.currency),saved:money(i.s,g.currency),n:i.ded,days:i.daysLeft,since:i.since,per:i.per||''})}
+  return v;
+}
+function ctx(){
+  const m=location.hash.match(/^#g\/(\d+)/),g=m&&S.goals.find(x=>x.id==m[1]);
+  return g?{scr:'detail',g,i:info(g)}:{scr:'home',goals:S.goals.map(g=>({g,i:info(g)}))};
+}
+
+/* ---- rules: [screen, priority, cooldown, test, messages, anchor] ---- */
+const CARD=g=>g&&`.card[data-id="${g.id}"]`;
+const find=(c,f,by)=>{const a=c.goals.filter(f);return a.length?(by?a.sort(by)[0]:rnd(a)):null};
+const JOKES=[
+  ['😹','I only chase one thing: the progress bar going up.'],
+  ['😼',"Not saying skip the coffee. But I'm not not saying it."],
+  ['😹','Cats sleep 16 hours a day. Saving is easier when you nap.'],
+  ['😸','Psst. A coin a day keeps the broke away.'],
+  ['😺','Small paws, small deposits, big results.'],
+  ['😹',"I don't understand compound interest, but I respect it."],
+  ['😼','Fun fact: knocking things off tables is free. Saving is better.']
+];
+const RULES=[
+  /* home */
+  {id:'h_empty',scr:'home',pri:9,cd:6e4,test:c=>!c.goals.length&&{},mood:'😺',msgs:["Hi, I'm Stashley! Make your first goal and I'll cheer you on.",'A fresh start. What are we saving for?'],sel:'.empty',mode:'in-br'},
+  {id:'h_ded',scr:'home',pri:7,cd:9e5,test:c=>find(c,x=>x.i.ded>=2,(a,b)=>b.i.ded-a.i.ded),mood:'😿',msgs:['{name} has had {n} withdrawals in a row. Everything okay?','Those withdrawals from {name} are making me sad.'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_near',scr:'home',pri:6,cd:9e5,test:c=>find(c,x=>x.i.pct>=85&&x.i.rem>0,(a,b)=>b.i.pct-a.i.pct),mood:'😻',msgs:['{name} is at {pct}%. So close I can almost taste the tuna.','Just {rem} left on {name}. Finish it!'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_done',scr:'home',pri:5,cd:9e5,test:c=>find(c,x=>x.i.rem<=0),mood:'😻',msgs:['{name} is fully funded. Look at you go!','{name} is complete. I knew you could do it.'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_behind',scr:'home',pri:5,cd:9e5,test:c=>find(c,x=>x.i.behind),mood:'😾',msgs:['{name} is behind schedule. Just saying.','The calendar is winning against {name}. Fight back!'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_stale',scr:'home',pri:4,cd:12e5,test:c=>find(c,x=>x.i.since!=null&&x.i.since>=14&&x.i.rem>0,(a,b)=>b.i.since-a.i.since),mood:'😿',msgs:['It has been {since} days since you added to {name}. I miss the bar going up.'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_blank',scr:'home',pri:4,cd:12e5,test:c=>find(c,x=>x.i.nlogs===0&&x.i.age>=3&&x.i.rem>0),mood:'😺',msgs:['{name} has no contributions yet. Even a tiny first deposit gets it going.'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_welcome',scr:'home',pri:3,cd:18e5,test:c=>c.goals.length&&c.goals[0],msgs:[v=>{const h=new Date().getHours();return h<5||h>=23?['😹','Saving at this hour? Dedicated. Or sleepless.']:['😺',`${v.greet}! ${v.count} goal${v.count>1?'s':''} on the go. Pick one and let's check in.`]}],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_avg',scr:'home',pri:2,cd:6e5,test:c=>c.goals.length>1&&{},mood:'😸',msgs:['{count} goals, {avg}% average progress. Not bad at all.'],sel:'.card',mode:'in-br'},
+  /* detail */
+  {id:'d_done',scr:'detail',pri:10,cd:3e5,test:c=>c.i.rem<=0,mood:'😻',msgs:['{name} is DONE! {saved} saved. Victory zoomies!','Goal reached! I am so proud of you.'],sel:'.bar.lg',mode:'above-r',fx:'confetti'},
+  {id:'d_ded',scr:'detail',pri:9,cd:3e5,test:c=>c.i.ded>=2,mood:'😿',msgs:[v=>v.n>=3?'{n} withdrawals in a row on {name}... I am worried.':'Two withdrawals in a row. Let us not make it three.'],sel:'ul',mode:'above-r'},
+  {id:'d_over',scr:'detail',pri:9,cd:3e5,test:c=>c.i.daysLeft!=null&&c.i.daysLeft<=0&&c.i.rem>0,mood:'😿',msgs:['The target date for {name} has passed. You can move it with Edit.'],sel:'.acts',mode:'above-r'},
+  {id:'d_close',scr:'detail',pri:9,cd:3e5,test:c=>c.i.daysLeft!=null&&c.i.daysLeft>0&&c.i.daysLeft<=7&&c.i.rem>0&&c.i.pct<90,mood:'🙀',msgs:[v=>v.days===1?'Today is the target date and {rem} is still left!':'Only {days} days left and {rem} to go. Deep breath.'],sel:'.note',mode:'above-r'},
+  {id:'d_behind',scr:'detail',pri:7,cd:3e5,test:c=>c.i.behind,mood:'😾',msgs:['You are behind schedule on {name}. Time to catch up.','The calendar is ahead of the bar on {name}. Let us fix that.'],sel:'.note',mode:'above-r'},
+  {id:'d_stale',scr:'detail',pri:6,cd:3e5,test:c=>c.i.since!=null&&c.i.since>=14&&c.i.rem>0,mood:'😿',msgs:['{since} days since your last deposit. {name} misses you.'],sel:'.acts',mode:'above-r'},
+  {id:'d_ahead',scr:'detail',pri:6,cd:3e5,test:c=>c.i.ahead,mood:'😼',msgs:['Ahead of schedule. Do not get cocky... okay, a little cocky is fine.','Look who is beating the calendar.'],sel:'.note',mode:'above-r'},
+  {id:'d_big',scr:'detail',pri:6,cd:3e5,test:c=>c.i.pct>=75&&c.i.rem>0,msgs:[['😻','{pct}% of {name}! The finish line is right there.'],['😼','Almost there... almost... do not blink.']],sel:'.bar.lg',mode:'above-r'},
+  {id:'d_half',scr:'detail',pri:5,cd:3e5,test:c=>c.i.pct>=50&&c.i.pct<75,mood:'😸',msgs:['Over halfway on {name}. Keep that momentum.','{pct}% done. The bar is looking great.'],sel:'.bar.lg',mode:'above-r'},
+  {id:'d_recent',scr:'detail',pri:5,cd:3e5,test:c=>c.i.last&&c.i.last.amt>0&&c.i.since!=null&&c.i.since<=1&&c.i.nlogs>1&&c.i.rem>0,mood:'😽',msgs:['Thanks for the recent deposit. Purrfect.','Fresh savings, fresh bar. I love it.'],sel:'ul',mode:'above-r'},
+  {id:'d_quarter',scr:'detail',pri:4,cd:3e5,test:c=>c.i.pct>=25&&c.i.pct<50,mood:'😸',msgs:['A solid start: {pct}% done. The first stretch is the hardest.'],sel:'.bar.lg',mode:'above-r'},
+  {id:'d_start',scr:'detail',pri:4,cd:3e5,test:c=>c.i.nlogs>0&&c.i.pct<25,mood:'😺',msgs:['Every coin counts. {rem} to go on {name}.'],sel:'.bar.lg',mode:'above-r'},
+  {id:'d_blank',scr:'detail',pri:4,cd:3e5,test:c=>c.i.nlogs===0,mood:'😺',msgs:['Nothing logged yet. Tap Add contribution and I will do a happy dance.'],sel:'.acts',mode:'above-r'},
+  {id:'d_tip',scr:'detail',pri:3,cd:6e5,test:c=>!!c.i.per&&c.i.rem>0,mood:'😺',msgs:['Tip: save about {per} and you will land {name} right on time.'],sel:'.note',mode:'above-r'},
+  /* any screen */
+  {id:'any_joke',scr:'*',pri:1,cd:6e4,test:()=>({}),msgs:JOKES,sel:null}
+];
+
+function pick(min,force){
+  const c=ctx(),now=Date.now(),cands=[];
+  for(const r of RULES){
+    if(r.scr!=='*'&&r.scr!==c.scr)continue;
+    if(r.pri<min)continue;
+    let hit;try{hit=r.test(c)}catch{hit=null}
+    if(!hit)continue;
+    const g=c.scr==='detail'?c.g:hit.g,i=c.scr==='detail'?c.i:hit.i;
+    const key=r.id+':'+(g?g.id:'');
+    if(!force&&now-(seen[key]||0)<r.cd)continue;
+    cands.push({r,g,i,key,score:r.pri+Math.random()*.9});
+  }
+  if(!cands.length)return null;
+  if(force){const o=cands.filter(x=>x.key!==lastKey2);return rnd(o.length?o:cands)}
+  return cands.sort((a,b)=>b.score-a.score)[0];
+}
+function deliver(p){
+  const {r,g,i,key}=p,v=vars(g,i);
+  let mood=r.mood,txt='';
+  for(let t=0;t<4;t++){
+    let m=rnd(r.msgs);if(typeof m==='function')m=m(v);
+    if(Array.isArray(m)){mood=m[0];txt=fmt(m[1],v)}else{mood=r.mood;txt=fmt(m,v)}
+    if(txt!==lastText)break;
+  }
+  seen[key]=Date.now();lastKey2=key;
+  say({mood,msg:txt,sel:typeof r.sel==='function'?r.sel(g):r.sel,mode:r.mode,fx:r.fx});
+}
+
+/* ---- reacting to what the person just did (by diffing goal snapshots) ---- */
+const snap=()=>{const m={};S.goals.forEach(g=>{m[g.id]={n:g.logs.length,s:saved(g),t:g.target,name:g.name}});return m};
+let prevSnap=snap(),lastNavKey=location.hash||'#';
+function diff(a,b){
+  const ev=[];
+  for(const id in b){
+    const n=b[id],o=a[id];
+    if(!o)ev.push({t:'created',id});
+    else if(n.n-o.n===1)ev.push({t:'added',id,o,n});
+    else if(n.n<o.n)ev.push({t:'removed',id});
+    else if(n.n===o.n&&n.t!==o.t)ev.push({t:'target',id,up:n.t>o.t});
+  }
+  for(const id in a)if(!b[id])ev.push({t:'deleted',name:a[id].name});
+  return ev;
+}
+function react(e){
+  const g=S.goals.find(x=>String(x.id)===e.id),onDetail=location.hash.startsWith('#g/');
+  const sel=g?(onDetail?'.bar.lg':CARD(g)):null,mode=onDetail?'above-r':'in-br';
+  const go=(mood,txt,v,fx)=>say({mood,msg:fmt(txt,Object.assign(vars(g),v||{})),sel,mode,fx});
+  if(e.t==='created')return go(...rnd([['😸',"New goal: {name}! I'm already excited. First deposit?"],['😺',"{name}, huh? Good taste. Let's get it funded."]]));
+  if(e.t==='deleted')return say({mood:rnd(['😿','🙀']),msg:fmt(rnd(['Goodbye, {name}. Plans change, it happens.','Poof! {name} is gone.']),{name:short(e.name)})});
+  if(e.t==='removed')return go(...rnd([['😼',"Rewriting history, are we? I won't tell."],['🙀','That entry vanished! Hope you meant to do that.']]));
+  if(e.t==='target')return e.up?go('😼','A bigger target? Ambitious. I like it.'):go('😼','Lowering the target? No judgement... okay, a little judgement.');
+  if(e.t==='added'){
+    const L=g.logs[g.logs.length-1],a=L.amt,abs=Math.abs(a),after=e.n.s,before=e.o.s;
+    const pb=before/g.target*100,pa=after/g.target*100,v={amt:money(abs,g.currency)};
+    if(a>0){
+      const ms=[75,50,25].find(m=>pb<m&&pa>=m);
+      if(after>=g.target&&before<g.target)return go('😻',rnd(['GOAL REACHED! {name} is fully funded. Zoomies time!','{name} is complete! I am so proud of you.']),v,'confetti');
+      if(ms)return go('😻','{m}% of {name}! Keep purring along.',{...v,m:ms},'sparkle');
+      if(e.n.n===1)return go('😻','Your very first deposit into {name}! A star is born.',v);
+      if(abs<=g.target*.01)return go('😹','{amt}? Tiny but mighty. Every coin counts.',v);
+      if(abs>=g.target*.2)return go('🙀','Whoa, {amt} in one go! Who are you and what did you do with the old you?',v);
+      return go(...rnd([['😽','Thank you! {amt} added to {name}.'],['😸','Nice one. {pct}% there now.'],['😽',"That's the stuff. {rem} to go."]]).concat([v]));
+    }
+    lastDed=Date.now();
+    let ded=0;for(const l of sorted(g)){if(l.amt<0)ded++;else break}
+    if(after<=0&&before>0)return go('🙀','{name} is empty now! What happened?!',v);
+    if(ded>=3)return go('😾','{n} withdrawals in a row. I am getting grumpy.',Object.assign({},v,{n:ded}));
+    if(before>0&&abs>=before*.5)return go('🙀','Whoa, that is a big withdrawal from {name}. Everything okay?',v);
+    return go(...rnd([['😿','{amt} taken out of {name}. It happens. Let us build it back.'],['😿',"Withdrawal noted. I'll pretend I didn't see that."]]).concat([v]));
+  }
+}
+function afterRender(){
+  const now=snap(),acted=Date.now()-lastAct<12000,key=location.hash||'#';
+  const evs=acted?diff(prevSnap,now):[];
+  prevSnap=now;
+  const nav=key!==lastNavKey;lastNavKey=key;
+  syncBtn();
+  if(!SG.on)return;
+  if(evs.length===1){clearTimeout(ct);react(evs[0]);return}
+  if(nav){tok++;clearTimeout(bt);clearTimeout(homeT);hideBubble();scheduleConsider();return}
+  reposition();
+}
+function scheduleConsider(){
+  clearTimeout(ct);
+  ct=setTimeout(()=>{
+    if(!SG.on||dialogOpen()||document.hidden||Date.now()-lastSay<5000)return;
+    const p=pick(3);if(p)deliver(p);
+  },1300);
+}
+new MutationObserver(()=>{clearTimeout(rt);rt=setTimeout(afterRender,90)}).observe(document.querySelector('#view'),{childList:true});
+['pointerdown','keydown','submit'].forEach(t=>document.addEventListener(t,()=>{lastAct=Date.now()},true));
+
+/* ---- dialogs: perch on top of them, react to Deduct ---- */
+['#gd','#cd'].forEach(s=>{
+  const d=document.querySelector(s);
+  new MutationObserver(()=>{
+    if(d.open){
+      if(!SG.on||!shown)return;
+      tok++;clearTimeout(bt);clearTimeout(homeT);hideBubble();
+      setTimeout(async()=>{
+        if(!d.open)return;
+        raise();cur.sel=s;cur.mode='above-r';
+        const p=spot(s,'above-r');await flyTo(p.x,p.y);
+      },380);
+    }else{
+      setTimeout(()=>{if(!dialogOpen()&&!bubbleOn&&Date.now()-lastSay>1500)goHome()},450);
+    }
+  }).observe(d,{attributes:true,attributeFilter:['open']});
+});
+document.querySelector('#cf').addEventListener('change',e=>{
+  if(!e.target||e.target.name!=='ct')return;
+  const c=ctx(),v=vars(c.g,c.i);
+  if(e.target.value==='deduct')say({mood:'🙀',msg:fmt(rnd(['Taking money out? Are you sure about that?','A withdrawal? Think of {name}!']),v),sel:'#cd',mode:'above-r'});
+  else say({mood:'😸',msg:"Back to adding. That's the spirit!",sel:'#cd',mode:'above-r'});
+});
+
+/* ---- reminders, taps, toggle ---- */
+const _toast=toast;
+toast=function(m){
+  _toast.apply(this,arguments);
+  if(typeof m==='string'&&m.startsWith('Time to save for ')&&SG.on&&!dialogOpen()){
+    const g=S.goals.find(x=>m==='Time to save for '+x.name+' 💰');
+    say({mood:'😾',msg:g?fmt(rnd(['Psst! It is saving time for {name}.','{name} is waiting. Chop chop!']),{name:short(g.name)}):'Psst! It is saving time.'});
+  }
+};
+el.querySelector('.sg-cat').addEventListener('click',()=>{
+  if(!SG.on)return;
+  const n=Date.now();taps=taps.filter(t=>n-t<6000);taps.push(n);
+  if(taps.length>=8){taps=[];say({mood:'😹',msg:"Okay okay, I'm ticklish!",sel:cur.sel,mode:cur.mode,fx:'zoom'});return}
+  const p=pick(1,true);if(p)deliver(p);
+});
+function syncBtn(){
+  const b=document.querySelector('#mascotBtn');
+  if(b){b.textContent='Stashley: '+(SG.on?'on':'off');b.setAttribute('aria-pressed',SG.on)}
+}
+function toggle(){
+  SG.on=!SG.on;
+  try{localStorage.setItem('stash.mascot',SG.on?'on':'off')}catch{}
+  syncBtn();
+  if(SG.on)say({mood:'😻',msg:"I'm back! Did you miss me?"});
+  else{say({mood:'😿',msg:"Okay, I'll go nap. Wake me anytime.",force:true});setTimeout(()=>{if(!SG.on)hideAll()},2800)}
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-a]');if(!t)return;
+  if(t.dataset.a==='mascot')toggle();
+  else if(t.dataset.a==='exp'&&SG.on)say({mood:'😸',msg:rnd(['Backup saved. Smart cat.','Backup downloaded. Future you says thanks.']),sel:cur.sel,mode:cur.mode});
+});
+addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(reposition,100)});
+addEventListener('scroll',()=>{if(flying||!shown)return;cancelAnimationFrame(reposition.f);reposition.f=requestAnimationFrame(reposition)},{passive:true});
+
+/* ---- occasional idle chatter ---- */
+function idleTick(){
+  clearTimeout(idleT);
+  idleT=setTimeout(()=>{
+    if(SG.on&&!document.hidden&&!dialogOpen()&&Date.now()-lastAct>20000&&Date.now()-lastSay>30000){const p=pick(1);if(p)deliver(p)}
+    idleTick();
+  },50000+Math.random()*40000);
+}
+syncBtn();idleTick();
+if(SG.on)setTimeout(scheduleConsider,500);
+})();
 </script>
 
 <script type="module">
