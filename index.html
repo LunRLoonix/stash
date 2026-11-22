@@ -225,6 +225,58 @@ html.no-popover #toast.show{transform:translateY(0)}
 html.no-popover .sg-bubble{width:auto}
 html.no-dialog .wrap{padding:16px 14px 120px}
 html.no-dialog .top{margin:-16px -14px 18px;padding:12px 14px}
+
+/* Browsers missing both native dialogs and Web Animations use a simpler layout. */
+html.legacy-ui body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f1f8;background-attachment:scroll;padding:0}
+html.legacy-ui .wrap{max-width:640px;padding:12px 14px 100px}
+html.legacy-ui .top{display:block;position:static;top:auto;margin:0 0 14px;padding:10px 0;background:transparent;border:0;border-radius:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+html.legacy-ui .top .r{display:block;margin-top:8px}
+html.legacy-ui .top .r>*{margin:0 8px 8px 0}
+html.legacy-ui .top>*+*{margin-left:0}
+html.legacy-ui .brand-sub{margin-left:0;letter-spacing:.08em}
+html.legacy-ui .card,html.legacy-ui .stat,html.legacy-ui li,html.legacy-ui .overview,html.legacy-ui .empty,html.legacy-ui dialog,html.legacy-ui .sg-bubble{background:#fff;border:1px solid #ddd6e8;box-shadow:0 1px 4px rgba(43,31,61,.10);-webkit-backdrop-filter:none;backdrop-filter:none}
+html.legacy-ui .card{padding:14px;border-radius:14px;margin-bottom:10px;overflow:visible}
+html.legacy-ui .card::before{display:none}
+html.legacy-ui .row{display:block}
+html.legacy-ui .row>*+*{margin-left:0}
+html.legacy-ui .grow{display:block;min-width:0}
+html.legacy-ui .row .ico{margin:0 0 8px}
+html.legacy-ui .pct{display:block;margin-top:6px}
+html.legacy-ui .grid{display:block;margin:12px 0}
+html.legacy-ui .grid>*{display:block;width:auto;margin:0 0 8px}
+html.legacy-ui .two{display:block}
+html.legacy-ui .two>div{display:block;width:auto;min-width:0;margin:0 0 12px}
+html.legacy-ui .acts{display:block;margin-bottom:18px}
+html.legacy-ui .acts>*{display:block;width:100%;min-width:0;margin:0 0 8px}
+html.legacy-ui.no-flex-gap .acts>*+*{margin-left:0}
+html.legacy-ui .btns{display:block;margin-top:16px}
+html.legacy-ui .btns>*{display:block;width:100%;margin:0 0 8px}
+html.legacy-ui.no-flex-gap .btns>*+*{margin-left:0}
+html.legacy-ui .overview{padding:18px;border-radius:14px;margin:8px 0 16px}
+html.legacy-ui .overview h2{font-size:25px}
+html.legacy-ui .overview-stats{display:block;margin-top:14px;padding-top:12px}
+html.legacy-ui .overview-stats>div{display:block;margin:0 0 10px}
+html.legacy-ui .section-head{display:block;margin-bottom:10px}
+html.legacy-ui li{display:block;padding:10px;border-radius:10px;margin-bottom:8px}
+html.legacy-ui li>*+*{margin-left:0}
+html.legacy-ui li .dot{display:inline-flex;vertical-align:middle;margin:0 8px 6px 0}
+html.legacy-ui li .grow{margin:0 0 6px}
+html.legacy-ui .x{margin-top:4px}
+html.legacy-ui .tabs{display:block}
+html.legacy-ui .tabs button{display:inline-block;width:48%;margin:0 1% 6px 0}
+html.legacy-ui .seg{display:block}
+html.legacy-ui .seg label{display:inline-block;width:48%;vertical-align:top}
+html.legacy-ui .prev{display:block}
+html.legacy-ui .prev>*+*{margin-left:0}
+html.legacy-ui .chk{display:block}
+html.legacy-ui .chk>*+*{margin-left:0}
+html.legacy-ui .foot{display:block;margin-top:18px}
+html.legacy-ui .foot>*{display:block;width:100%;margin:0 0 8px}
+html.legacy-ui.no-flex-gap .foot>*+*{margin-left:0}
+html.legacy-ui dialog{border-radius:14px;max-width:480px;padding:18px;overscroll-behavior:auto}
+html.legacy-ui.no-dialog dialog[open]{border-radius:14px 14px 0 0}
+html.legacy-ui .sg-bubble{max-width:220px}
+@media(max-width:520px){html.legacy-ui .wrap{padding:12px 12px 100px}html.legacy-ui .hero{padding:18px 10px}.legacy-ui .hero .num{font-size:38px}}
 </style>
 </head>
 <body>
@@ -279,17 +331,21 @@ html.no-dialog .top{margin:-16px -14px 18px;padding:12px 14px}
 (function(){
   var root=document.documentElement,probe=document.createElement('div');
   function addClass(name){if((' '+root.className+' ').indexOf(' '+name+' ')<0)root.className+=(root.className?' ':'')+name}
-  var dialog=document.createElement('dialog');
-  if(typeof dialog.showModal!=='function')addClass('no-dialog');
+  var dialog=document.createElement('dialog'),hasDialog=typeof dialog.showModal==='function';
+  if(!hasDialog)addClass('no-dialog');
   if(typeof probe.showPopover!=='function')addClass('no-popover');
+  var hasAnimation=typeof probe.animate==='function';
   probe.style.display='grid';
-  if(probe.style.display!=='grid')addClass('no-css-grid');
+  var hasGrid=probe.style.display==='grid';
+  if(!hasGrid)addClass('no-css-grid');
   var flex=document.createElement('div'),a=document.createElement('div'),b=document.createElement('div');
   flex.style.cssText='position:absolute;left:-9999px;top:-9999px;display:flex;flex-direction:column;row-gap:1px';
   a.style.cssText='height:1px;min-height:1px';b.style.cssText='height:1px;min-height:1px';
   flex.appendChild(a);flex.appendChild(b);document.body.appendChild(flex);
-  if(flex.scrollHeight<3)addClass('no-flex-gap');
+  var hasFlexGap=flex.scrollHeight>=3;
+  if(!hasFlexGap)addClass('no-flex-gap');
   document.body.removeChild(flex);
+  if((!hasDialog&&!hasAnimation)||(!hasGrid&&!hasFlexGap))addClass('legacy-ui');
 })();
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
