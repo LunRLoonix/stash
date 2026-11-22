@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#a98af0">
+<title>Stash | Savings Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<script>/* safari10-compat */(function(){var d=document.documentElement,c=[],ok=!1;try{ok=!!(window.CSS&&CSS.supports&&CSS.supports('padding','max(1px,2px)'))}catch(e){}
+if(!ok)c.push('legacy');
+try{var f=document.createElement('div');f.style.cssText='display:flex;flex-direction:column;gap:1px;position:absolute;visibility:hidden';f.innerHTML='<i style="display:block;height:1px"></i><i style="display:block;height:1px"></i>';d.appendChild(f);if(f.offsetHeight!==3)c.push('nfg');d.removeChild(f)}catch(e){if(!ok)c.push('nfg')}
+d.className+=(d.className?' ':'')+c.join(' ')})();</script>
+<style>
+
+dialog{width:calc(100vw - 24px);max-width:480px}
+#toast{top:12px}
+.fab{bottom:22px}
+
+:root{--bg:#f5f2fb;--card:#fff;--ink:#271f3d;--mute:#867da0;--line:#ebe5f6;--acc:#a98af0;--acc2:#f58fc4;--ok:#3bb77e;--bad:#e8596f;--sh:0 6px 24px rgba(110,80,190,.10)}
+@media(prefers-color-scheme:dark){:root{--bg:#14111d;--card:#1e1930;--ink:#f2edff;--mute:#9b93b6;--line:#2d2644;--sh:0 6px 24px rgba(0,0,0,.35)}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:15px/1.45 Figtree,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+h1,h2,h3,h4,.num{font-family:'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.02em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+small{color:var(--mute)}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 110px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.top h1{font-size:30px;font-weight:800}
+.top h1 span{display:inline-block;animation:wob 3s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg) scale(1.1)}}
+.btn{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font-weight:600;padding:12px 20px;border-radius:14px;box-shadow:0 6px 16px rgba(169,138,240,.4);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px)}.btn:active{transform:scale(.96)}
+.ghost{padding:10px 16px;border-radius:12px;border:1.5px solid var(--line);font-weight:600;transition:background .15s,transform .15s}
+.ghost:hover{background:var(--line)}.ghost:active{transform:scale(.96)}
+.danger{color:var(--bad)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#view{animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:var(--sh);cursor:pointer;transition:transform .2s}
+.card:hover{transform:translateY(-3px)}.card:active{transform:scale(.985)}
+.row{display:flex;align-items:center;gap:12px}.grow{flex:1;min-width:0}.sp{justify-content:space-between;margin-top:10px}
+.card h3{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pct{font-size:20px}
+.ico{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:24px;object-fit:cover;flex:none}
+.ico.big{width:84px;height:84px;font-size:42px;border-radius:26px}
+.bar{height:12px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:14px}
+.bar.lg{height:16px}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--c,var(--acc)),var(--acc2));transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.rec{display:block;margin-top:8px}
+.empty{text-align:center;padding:60px 20px}.empty .em{font-size:56px;display:block;margin-bottom:10px}
+.hero{text-align:center;padding:10px 0 4px}
+.hero h2{font-size:26px;margin:12px 0 4px}.hero .num{font-size:44px;font-weight:800}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.stat{background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:var(--sh)}
+.stat b{display:block;font-size:16px;margin-top:2px}
+.note{background:linear-gradient(135deg,rgba(169,138,240,.16),rgba(245,143,196,.16));border:1.5px dashed var(--acc);border-radius:16px;padding:14px 16px;margin-bottom:16px;font-weight:500}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}.acts .btn{flex:1;min-width:160px}
+h4{font-size:18px;margin-bottom:10px}
+ul{list-style:none}
+li{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+li.new{animation:in .4s both}
+.dot{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-weight:800;background:rgba(59,183,126,.15);color:var(--ok);flex:none}
+.dot.neg{background:rgba(232,89,111,.15);color:var(--bad)}
+li small{display:block}
+.x{width:30px;height:30px;border-radius:9px;color:var(--mute)}.x:hover{background:var(--line);color:var(--bad)}
+.foot{display:flex;gap:8px;justify-content:center;margin-top:26px}
+dialog{border:0;border-radius:24px;background:var(--card);color:var(--ink);width:min(480px,calc(100vw - 24px));max-height:92vh;padding:22px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog[open]{animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
+dialog::backdrop{background:rgba(20,10,40,.45);backdrop-filter:blur(4px)}
+@keyframes pop{from{opacity:0;transform:scale(.9) translateY(20px)}to{opacity:1;transform:none}}
+dialog h2{font-size:22px;margin-bottom:14px}
+label{display:block;font-weight:600;font-size:13px;margin:12px 0 5px}
+input,select{width:100%;font:inherit;color:inherit;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px}
+input:focus,select:focus{outline:none;border-color:var(--acc)}
+input[type=color]{padding:2px;height:36px;width:44px}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--acc)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tabs,.seg{display:flex;background:var(--bg);border-radius:12px;padding:4px;gap:4px}
+.tabs button,.seg label{flex:1;text-align:center;padding:8px;border-radius:9px;font-weight:600;margin:0;font-size:14px;cursor:pointer}
+.tabs .on,.seg input:checked+span{background:var(--card);box-shadow:var(--sh)}
+.seg label{padding:0}.seg input{display:none}.seg span{display:block;padding:9px;border-radius:9px;transition:.2s}
+.seg input[value=add]:checked+span{background:var(--ok);color:#fff}
+.seg input[value=deduct]:checked+span{background:var(--bad);color:#fff}
+.picker{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.picker button{width:38px;height:38px;border-radius:11px;font-size:20px;background:var(--bg);transition:transform .15s}
+.picker button:hover{transform:scale(1.15)}
+.picker .sw{width:26px;height:26px;border-radius:50%}
+.picker .sel{outline:3px solid var(--acc);outline-offset:1px}
+.prev{display:flex;align-items:center;gap:12px;margin-top:12px}
+.hide{display:none!important}
+.chk{display:flex;align-items:center;gap:10px;margin-top:14px;font-weight:600}.chk label{margin:0}
+.btns{display:flex;gap:8px;margin-top:20px}.btns>*{flex:1}
+.hero .ico{margin:0 auto}
+#toast{position:fixed;inset:auto;top:calc(12px + env(safe-area-inset-top,0px));left:50%;margin:0;border:0;width:max-content;max-width:90vw;height:auto;overflow:visible;transform:translate(-50%,-160%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;box-shadow:var(--sh);transition:transform .4s cubic-bezier(.2,1.2,.4,1);z-index:99}
+#toast.show{transform:translate(-50%,0)}
+.fab{position:fixed;right:20px;bottom:calc(22px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:20px;font-size:30px;padding:0}
+.top .r{display:flex;gap:8px;align-items:center}
+html{-webkit-text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+input,select{font-size:16px;min-height:46px;min-width:0;-webkit-appearance:none;appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--mute) 50%),linear-gradient(135deg,var(--mute) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px;text-overflow:ellipsis}
+input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;min-height:0;width:22px;height:22px}
+input[type=color]{-webkit-appearance:auto;appearance:auto;min-height:36px}
+input[type=file]{font-size:14px;padding:9px}
+input[type=date],input[type=time]{display:block;text-align:left}
+.two>div{min-width:0}
+@media(hover:none){.card:hover,.btn:hover,.picker button:hover{transform:none}}
+@media(max-width:520px){
+.wrap{padding:16px 14px 120px}
+.top h1{font-size:26px}
+#acct{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hero .num{font-size:38px}.ico.big{width:72px;height:72px;font-size:36px}
+.acts .btn{min-width:100%}
+dialog{width:100%;max-width:100%;margin:auto 0 0;border-radius:26px 26px 0 0;max-height:90dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+dialog[open]{animation:sheet .35s cubic-bezier(.2,.9,.3,1)}
+.btns .btn,.btns .ghost{min-height:48px}
+}
+@keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+#acct{padding:8px 12px;font-size:13px}
+@media(max-width:520px){#newTop{display:none}}
+body{padding-top:0}
+.wrap{--px:max(16px,env(safe-area-inset-left,0px),env(safe-area-inset-right,0px));padding:16px var(--px) 120px}
+.top{position:sticky;top:0;z-index:20;margin:-16px calc(var(--px)*-1) 18px;padding:calc(env(safe-area-inset-top,0px) + 12px) var(--px) 12px;background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.card h3{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+input[type=date],input[type=time]{width:100%;max-width:100%;min-width:0}
+::-webkit-date-and-time-value{text-align:left;min-height:1.3em}
+input[type=color]{-webkit-appearance:none;appearance:none;width:38px;height:38px;min-height:0;padding:0;border:0;border-radius:50%;background:none;overflow:hidden}
+input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+input[type=color]::-webkit-color-swatch{border:3px solid var(--line);border-radius:50%}
+input[type=checkbox]{-webkit-appearance:none;appearance:none;width:26px;height:26px;min-height:0;flex:none;border-radius:8px;border:2px solid var(--mute);background:var(--bg);display:grid;place-items:center;transition:.2s}
+input[type=checkbox]:checked{background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent}
+input[type=checkbox]:checked::after{content:"✓";color:#fff;font-size:16px;font-weight:700}
+#prev .ico.big{width:56px;height:56px;font-size:30px;border-radius:18px}
+@media(hover:none) and (max-width:520px){.fab{bottom:calc(84px + env(safe-area-inset-bottom,0px));right:16px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* ---------- Stashley ---------- */
+.foot{flex-wrap:wrap}
+#stashley{position:fixed;inset:0 auto auto 0;margin:0;padding:0;border:0;background:none;overflow:visible;width:52px;height:52px;color:var(--ink);transform:translate(-120px,-120px);pointer-events:none;will-change:transform}
+.sg-cat{pointer-events:auto;display:block;width:52px;height:52px;padding:0;border-radius:50%;position:relative;-webkit-tap-highlight-color:transparent;transition:scale .15s}
+.sg-cat:active{scale:.9}
+.sg-hover{display:block;width:100%;height:100%;position:relative;animation:sgbob 2.8s ease-in-out infinite}
+.sg-tilt{display:block;width:100%;height:100%;position:relative}
+.sg-face{position:absolute;inset:0;display:grid;place-items:center;font-size:38px;line-height:1;opacity:0;transform:scale(.55) rotate(-14deg);transition:opacity .22s ease,transform .32s cubic-bezier(.2,1.4,.4,1);filter:drop-shadow(0 5px 6px rgba(70,40,140,.28))}
+.sg-face.on{opacity:1;transform:none}
+.sg-shadow{position:absolute;left:13px;right:13px;bottom:-9px;height:8px;border-radius:50%;background:rgba(40,20,80,.24);filter:blur(2px);pointer-events:none;animation:sgsh 2.8s ease-in-out infinite}
+@keyframes sgbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes sgsh{0%,100%{transform:scaleX(1);opacity:.9}50%{transform:scaleX(.7);opacity:.5}}
+.sg-bubble{position:absolute;bottom:calc(100% + 12px);width:max-content;max-width:240px;background:var(--card);color:var(--ink);padding:10px 13px;border-radius:16px;box-shadow:var(--sh),0 0 0 1.5px var(--line);font:500 14px/1.38 Figtree,system-ui,sans-serif;opacity:0;transform:translateY(6px) scale(.94);transition:opacity .2s ease,transform .26s cubic-bezier(.2,1.3,.4,1);pointer-events:none;cursor:pointer}
+.sg-bubble.show{opacity:1;transform:none;pointer-events:auto}
+.sg-bubble.l{left:0;transform-origin:bottom left}
+.sg-bubble.r{right:0;transform-origin:bottom right}
+.sg-bubble.below{bottom:auto;top:calc(100% + 12px)}
+.sg-bubble::after{content:"";position:absolute;width:12px;height:12px;background:var(--card);border-radius:3px;transform:rotate(45deg);bottom:-5px}
+.sg-bubble.l::after{left:20px}.sg-bubble.r::after{right:20px}
+.sg-bubble.below::after{bottom:auto;top:-5px}
+.sg-conf{position:absolute;left:23px;top:23px;width:7px;height:9px;border-radius:2px;pointer-events:none}
+
+/* Stash • glass edition: static light fields keep the compositor idle. */
+:root{color-scheme:light;--mute:#6c617e;--glass:rgba(255,255,255,.64);--rim:rgba(255,255,255,.88);--sh:0 12px 38px #59407812, inset 0 1px 0 #ffffffc9;--ink:#302442}
+body{background:radial-gradient(ellipse at 8% 8%,#dccdf7 0,transparent 43%),radial-gradient(ellipse at 95% 48%,#fad9e9 0,transparent 45%),radial-gradient(ellipse at 25% 95%,#d4e9ed 0,transparent 44%),#f6f3fa;background-attachment:fixed}
+.wrap{max-width:860px;padding-bottom:150px}
+.top{background:rgba(248,244,255,.72);border-bottom:1px solid var(--rim);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);gap:12px}
+.brand-sub{font:500 10px/1.4 Figtree,system-ui;letter-spacing:.17em;text-transform:uppercase;color:var(--mute);display:block;margin:0 0 0 43px}
+.top h1{line-height:1.1}.top h1 span{animation:none}
+.card,.stat,li,.overview,.empty,.sg-bubble{background:var(--glass);border:1px solid var(--rim);box-shadow:var(--sh);-webkit-backdrop-filter:blur(16px) saturate(1.35);backdrop-filter:blur(16px) saturate(1.35)}
+.card{padding:22px;border-radius:26px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}
+.card::before{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(115deg,#ffffff66,transparent 45%,#ffffff16)}
+.card:hover{box-shadow:0 18px 40px #59407820,inset 0 1px 0 white;border-color:#d6c5f1}
+.card .row,.card .rec,.card .bar{position:relative}
+.card h3{font-size:20px}.card .pct{color:#8664b7}.card .ico{box-shadow:inset 0 1px 1px #ffffffa0}
+.bar{height:9px;background:#a98af024;box-shadow:inset 0 1px 3px #49336512}.bar i{box-shadow:inset 0 1px 0 #ffffff80}
+.btn{background:linear-gradient(150deg,#ab87d9,#9165bf 60%,#ac70a5);border:1px solid #ffffff55;box-shadow:0 5px 16px #8053b733,inset 0 1px 0 #ffffff66;color:white}
+.ghost{background:#ffffff38;border:1px solid var(--rim);box-shadow:inset 0 1px 0 #ffffff60}
+.ghost:hover{background:#ffffff80}.foot{gap:10px}.foot .ghost{font-size:12px}
+.hero{padding:28px 18px}.hero h2{margin-top:16px}.hero .num{font-size:54px}.hero .bar{max-width:500px;margin:18px auto 0}
+.stat{padding:18px;border-radius:20px}.note{border:1px solid #b99bd278;background:#c7afe329}
+li{padding:14px;border-radius:18px}li small{overflow-wrap:anywhere}.x{width:44px;height:44px;flex:none}
+dialog{background:rgba(249,246,255,.94);border:1px solid var(--rim);box-shadow:0 30px 100px #35204f40,inset 0 1px 0 white;overflow:auto;overscroll-behavior:contain}
+dialog::backdrop{background:#25153545;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+input,select{background:#ffffff70;border-color:#c5b6dc80}.seg input{display:block;position:absolute;opacity:0;width:1px;height:1px;min-height:0}.seg label:focus-within span{outline:3px solid var(--acc);outline-offset:2px}
+.overview{padding:26px;border-radius:28px;margin:12px 0 26px;position:relative;overflow:hidden}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.overview h2{font-size:32px;margin:7px 0}.overview p{color:var(--mute);max-width:48ch;font-size:14px}
+.overview-stats{display:flex;flex-wrap:wrap;gap:20px;margin-top:22px;padding-top:18px;border-top:1px solid #ae92ce30}.overview-stats b{font-family:'Bricolage Grotesque',system-ui;font-size:24px;display:block}.overview-stats small{font-size:12px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.section-head h2{font-size:19px}.section-head small{font-size:12px}.empty{border-radius:28px;padding:55px 24px}.empty p{margin-top:8px}
+.fab{z-index:25;border-radius:22px;width:56px;height:56px}
+#stashley{z-index:30}.sg-cat{background:linear-gradient(145deg,#ffffff90,#f5eaff40);box-shadow:0 5px 18px #8053b72b,inset 0 1px 0 #ffffffee;border:1px solid #ffffffa0}
+.sg-face{font-size:0;filter:none}.sg-tilt{isolation:isolate}.sg-hover{animation-duration:4s}
+.kitty{position:relative;display:block;width:39px;height:33px;background:linear-gradient(140deg,#e6d9fa,#c7a6ec);border:1px solid #a886cf;border-radius:45% 45% 44% 44%;box-shadow:inset 0 2px 2px #ffffff70}
+.kitty::before,.kitty::after{content:'';position:absolute;top:-10px;width:15px;height:18px;background:linear-gradient(135deg,#c8a8e7 30%,#efc1d9 31%,#e5b2d0 68%,#c8a8e7 69%);border:1px solid #a886cf;border-radius:4px 12px 0 0;transform:rotate(-13deg);z-index:-1}
+.kitty::before{left:0}.kitty::after{right:0;transform:scaleX(-1) rotate(-13deg)}
+.k-eyes{position:absolute;inset:9px 5px auto;display:flex;justify-content:space-between;font:900 12px/1 system-ui;color:#ec72a8}.k-eyes i{font-style:normal}.k-eyes i:last-child{color:#493456}.k-mouth{position:absolute;bottom:5px;left:0;right:0;font:700 11px/1 system-ui;text-align:center;color:#644477}.k-bell{position:absolute;bottom:-6px;left:15px;width:8px;height:8px;background:#ffda8a;border:1px solid #d5a75f;border-radius:50%;box-shadow:0 -3px 0 2px #ef98c3}
+.sg-face[data-mood="😿"] .k-eyes{transform:rotate(-7deg)}.sg-face[data-mood="😻"] .k-eyes{color:#f2549d}.sg-face[data-mood="🙀"] .k-mouth{font-size:14px}
+.sg-bubble{padding:14px 16px;border-radius:20px;font-size:13px;line-height:1.5;overflow-wrap:anywhere;max-height:180px;overflow-y:auto}.sg-bubble::after{display:none}
+.sg-bubble::before{content:'STASHLEY';display:block;font-size:9px;font-weight:700;letter-spacing:.15em;color:var(--mute);margin-bottom:5px}
+@supports not (backdrop-filter:blur(1px)){.card,.stat,li,.overview,.empty,.sg-bubble{background:var(--card)}}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;--ink:#f3eaff;--mute:#bcb0cf;--glass:rgba(43,32,61,.82);--rim:rgba(222,202,255,.16);--sh:0 12px 38px #00000024,inset 0 1px 0 #ffffff12}body{background:radial-gradient(ellipse at 8% 8%,#342346 0,transparent 43%),radial-gradient(ellipse at 95% 48%,#402438 0,transparent 45%),#17121e}.top{background:#21192ddd}.ghost{background:#ffffff07}.ghost:hover{background:#ffffff17}.card:hover{border-color:#84629f;box-shadow:0 18px 40px #0003}dialog{background:#261d33f5}input,select{background:#1e172c}.card .pct{color:#d4b8f7}.sg-bubble{background:#30243eeb}}
+@media(max-width:520px){.overview{padding:22px}.overview h2{font-size:28px}.card{padding:18px}.hero .num{font-size:40px}.top .r{gap:6px}#acct{max-width:125px;font-size:11px}.brand-sub{font-size:9px}.overview-stats{gap:16px}.overview-stats b{font-size:21px}.foot .ghost{padding:10px 12px}.sg-bubble{max-height:140px}.fab{bottom:calc(24px + env(safe-area-inset-bottom))!important}}
+@media(prefers-reduced-motion:reduce){.sg-hover,.sg-shadow{animation:none!important}}
+
+
+/* ---- Safari 10 / older WebKit fallbacks ---- */
+.grid,.two{grid-gap:10px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.ico,.dot,.sg-face,input[type=checkbox]{justify-items:center;align-items:center}
+.card::before{top:0;right:0;bottom:0;left:0}
+.sg-face{top:0;left:0;width:100%;height:100%}
+.k-eyes{top:9px;left:5px;right:5px;bottom:auto}
+#stashley{top:0;left:0;z-index:60}
+.top{position:-webkit-sticky;position:sticky}
+#toast,.sg-bubble{width:-webkit-max-content}
+li small,.sg-bubble,.hero .num{word-wrap:break-word}
+dialog:not([open]){display:none}
+dialog.poly[open]{display:block;position:fixed;z-index:41;left:50%;top:50%;margin:0;max-height:92vh;overflow:auto;-webkit-overflow-scrolling:touch;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%);animation:none}
+.dlg-bd{position:fixed;top:0;right:0;bottom:0;left:0;z-index:40;background:rgba(37,21,53,.45)}
+@media(max-width:520px){dialog.poly[open]{left:0;right:0;top:auto;bottom:0;width:100%;max-width:100%;max-height:90vh;-webkit-transform:none;transform:none;border-radius:26px 26px 0 0;animation:sheet .35s cubic-bezier(.2,.9,.3,1)}}
+@media(max-width:340px){.hero .num{font-size:30px}.overview h2{font-size:24px}.top h1{font-size:23px}.overview-stats b{font-size:18px}}
+.legacy .wrap{--px:16px}
+.legacy .top{padding:12px var(--px);background:rgba(248,244,255,.96)}
+.legacy .top,.legacy .card,.legacy .stat,.legacy li,.legacy .overview,.legacy .empty,.legacy .sg-bubble,.legacy dialog,.legacy .dlg-bd{-webkit-backdrop-filter:none;backdrop-filter:none}
+.legacy body{background-attachment:scroll}
+.nfg .row>*+*,.nfg li>*+*,.nfg .prev>*+*{margin-left:12px}
+.nfg .top>*+*{margin-left:12px}
+.nfg .top .r>*+*{margin-left:8px}
+.nfg .tabs>*+*,.nfg .seg>*+*{margin-left:4px}
+.nfg .btns>*+*,.nfg .chk>*+*{margin-left:8px}
+.nfg .acts>*{margin:0 8px 8px 0}
+.nfg .foot>*{margin:0 5px 10px}
+.nfg .picker>*{margin:0 3px 6px}
+.nfg .overview-stats>div{margin:0 20px 20px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div><h1><span>🐾</span> Stash</h1><span class="brand-sub">Little steps. Lovely futures.</span></div><div class="r"><button class="ghost hide" id="acct"></button><button class="btn hide" id="newTop">+ New goal</button></div></div>
+  <main id="view"></main>
+</div>
+<button class="btn fab" id="fab" aria-label="New goal">+</button>
+<div id="toast" role="status" popover="manual"></div>
+
+<dialog id="gd" aria-labelledby="gt">
+  <form id="gf" method="dialog">
+    <h2 id="gt">New goal</h2>
+    <label for="gn">Goal name</label>
+    <input id="gn" required maxlength="40" placeholder="New PC, trip, emergency fund...">
+    <label>Icon</label>
+    <div class="tabs"><button type="button" data-t="emoji" class="on">Emoji + color</button><button type="button" data-t="photo">Photo</button></div>
+    <div id="tEmoji"><div class="picker" id="emojis"></div><div class="picker" id="swatches"></div></div>
+    <div id="tPhoto" class="hide">
+      <label for="gfile">Upload from this device</label><input id="gfile" type="file" accept="image/*">
+      <label for="gurl">Or paste an image link</label><input id="gurl" type="url" placeholder="https://...">
+    </div>
+    <div class="prev"><span id="prev"></span><small>Preview</small></div>
+    <div class="two">
+      <div><label for="gamt">Target amount</label><input id="gamt" type="number" min="0.01" step="any" required inputmode="decimal"></div>
+      <div><label for="gcur">Currency</label><select id="gcur"></select></div>
+    </div>
+    <div class="two">
+      <div><label for="gdate">Target date (optional)</label><input id="gdate" type="date"></div>
+      <div><label for="gfreq">Savings frequency</label><select id="gfreq"><option value="daily">Daily</option><option value="weekly" selected>Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option></select></div>
+    </div>
+    <div class="chk"><input type="checkbox" id="grem"><label for="grem">Remind me to save (optional)</label></div>
+    <div class="two hide" id="remBox"><div><label for="gday">Day</label><select id="gday"></select></div><div><label for="gtime">Time</label><input type="time" id="gtime" value="18:00"></div></div>
+    <div class="btns"><button type="button" class="ghost" data-close>Cancel</button><button class="btn" id="gsave">Save goal</button></div>
+  </form>
+</dialog>
+
+<dialog id="cd" aria-labelledby="ctitle">
+  <form id="cf" method="dialog">
+    <h2 id="ctitle">Add contribution</h2>
+    <div class="seg"><label><input type="radio" name="ct" value="add" checked><span>Add</span></label><label><input type="radio" name="ct" value="deduct"><span>Deduct</span></label></div>
+    <label for="camt" id="camtL">Amount</label><input id="camt" type="number" min="0.01" step="any" required inputmode="decimal">
+    <label for="cdate">Date</label><input id="cdate" type="date" required>
+    <label for="cnote">Note (optional)</label><input id="cnote" maxlength="80" placeholder="Where did it come from?">
+    <div class="btns"><button type="button" class="ghost" data-close>Cancel</button><button class="btn">Save</button></div>
+  </form>
+</dialog>
+<input type="file" id="imp" accept="application/json" class="hide">
+<script>/* dialog polyfill + helpers for browsers without <dialog> */
+(function(){
+var bd=null;
+function ev(d,n){var e=document.createEvent('Event');e.initEvent(n,false,false);d.dispatchEvent(e)}
+function hook(d){
+ if(typeof d.showModal==='function')return;
+ d.className+=' poly';
+ Object.defineProperty(d,'open',{get:function(){return d.hasAttribute('open')},set:function(v){if(v)d.setAttribute('open','');else d.removeAttribute('open')}});
+ d.showModal=function(){
+  if(d.hasAttribute('open'))return;
+  bd=document.createElement('div');bd.className='dlg-bd';document.body.appendChild(bd);
+  d.setAttribute('open','');d.scrollTop=0;
+ };
+ d.close=function(){
+  if(!d.hasAttribute('open'))return;
+  d.removeAttribute('open');
+  if(bd&&bd.parentNode)bd.parentNode.removeChild(bd);
+  bd=null;ev(d,'close');
+ };
+}
+var a=document.querySelectorAll('dialog');for(var i=0;i<a.length;i++)hook(a[i]);
+document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.keyCode===27){var o=document.querySelector('dialog.poly[open]');if(o)o.close()}});
+window.ctv=function(){var c=document.querySelector('#cf input[name=ct]:checked');return c?c.value:'add'};
+if(/(^|\s)legacy(\s|$)/.test(document.documentElement.className)){var b=document.getElementById('acct');if(b){b.className=b.className.replace('hide','');b.textContent='On this device';b.disabled=true}}
+})();
+</script>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* Validate local, imported and synced data through the same boundary. */
+function validDate(v){if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;const d=new Date(v+'T00:00:00Z');return !isNaN(d)&&d.toISOString().slice(0,10)===v}
+function normalize(d){
+  if(!d||!Array.isArray(d.goals)||d.goals.length>2000)throw Error('Invalid goals');
+  const ids=new Set();
+  return {ts:Number.isFinite(d.ts)&&d.ts>=0?d.ts:0,goals:d.goals.map(g=>{
+    if(!g||!Number.isSafeInteger(g.id)||g.id<=0||ids.has(g.id)||typeof g.name!=='string'||!g.name.trim()||!Number.isFinite(g.target)||g.target<=0||g.target>1e12||!Array.isArray(g.logs))throw Error('Invalid goal');ids.add(g.id);
+    if(!/^[A-Z]{3}$/.test(g.currency||''))throw Error('Invalid currency');
+    const logIds=new Set();
+    return {id:g.id,name:g.name.trim().slice(0,40),target:g.target,currency:g.currency,date:validDate(g.date)?g.date:'',freq:['daily','weekly','biweekly','monthly'].includes(g.freq)?g.freq:'weekly',icon:{emoji:typeof (g.icon||{}).emoji==='string'?g.icon.emoji.slice(0,16):'💰',color:/^#[0-9a-f]{6}$/i.test((g.icon||{}).color)?g.icon.color:'#a98af0',src:safeImage((g.icon||{}).src)},remind:{on:(g.remind||{}).on===true,day:Number.isInteger((g.remind||{}).day)&&g.remind.day>=0&&g.remind.day<=6?g.remind.day:1,time:/^([01]\d|2[0-3]):[0-5]\d$/.test((g.remind||{}).time)?g.remind.time:'18:00'},logs:g.logs.map(l=>{
+      if(!l||!Number.isSafeInteger(l.id)||logIds.has(l.id)||!Number.isFinite(l.amt)||Math.abs(l.amt)>1e12||!validDate(l.date))throw Error('Invalid contribution');logIds.add(l.id);
+      return{id:l.id,amt:l.amt,date:l.date,note:typeof l.note==='string'?l.note.slice(0,80):''};
+    })};
+  })};
+}
+function safeImage(v){return typeof v==='string'&&(/^(https?:)\/\//i.test(v)||/^data:image\/(png|jpeg|webp|gif);base64,/i.test(v))?v:''}
+let S,loadWarning=false;try{S=normalize(JSON.parse(localStorage.getItem('stash.v1'))||{goals:[]})}catch(_e){S={goals:[]};loadWarning=true}
+function persist(){try{localStorage.setItem('stash.v1',JSON.stringify(S));return true}catch(_e){toast('Could not save on this device. Export a backup before closing.');return false}}
+const save=()=>{S.ts=Date.now();const ok=persist();window.cloudPush&&window.cloudPush();return ok};
+window.stash={get:()=>S,set:d=>{S=normalize(d);persist();render()}};
+const nextId=()=>{let id=Date.now();for(const g of S.goals){id=Math.max(id,g.id);for(const l of g.logs)id=Math.max(id,l.id)}return id+1};
+const FREQ={daily:['every day',1],weekly:['every week',7],biweekly:['every 2 weeks',14],monthly:['every month',30.4375]};
+const EMOJI=['💰','🎮','💻','📱','🎧','✈️','🏠','🚗','🎓','🎁','📷','👟','🐶','💍','🛡️','🎸','🏝️','⌚','💵','⭐'];
+const COLORS=['#a98af0','#f58fc4','#ff9f7a','#ffd166','#6fd3a0','#5fc7e8','#7b8cff','#9aa0b4'];
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const money=(n,c)=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:c}).format(n)}catch(_e){return c+' '+n.toFixed(2)}};
+const saved=g=>Math.round(g.logs.reduce((a,l)=>a+l.amt,0)*1e8)/1e8;
+const pctOf=g=>Math.max(0,Math.min(100,saved(g)/g.target*100));
+const pd=(v,end)=>{const p=v.split('-');return end?new Date(+p[0],+p[1]-1,+p[2],23,59,59):new Date(+p[0],+p[1]-1,+p[2])};
+const fdate=d=>pd(d).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+const sorted=g=>[...g.logs].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+const ico=(g,big)=>g.icon.src?`<img class="ico ${big?'big':''}" src="${esc(g.icon.src)}" alt="">`:`<div class="ico ${big?'big':''}" style="background:${esc(g.icon.color)}33">${esc(g.icon.emoji)}</div>`;
+
+/* ---------- views ---------- */
+const view=$('#view');
+function render(){
+  const m=location.hash.match(/^#g\/(\d+)/),g=m&&S.goals.find(x=>x.id==m[1]);
+  view.style.animation='none';void view.offsetWidth;view.style.animation='';
+  if(g){view.innerHTML=detail(g);$('#fab').classList.add('hide');$('#newTop').classList.add('hide')}
+  else{if(m)location.hash='';view.innerHTML=home();$('#fab').classList.remove('hide');$('#newTop').classList.remove('hide')}
+  setTimeout(()=>document.querySelectorAll('.bar i').forEach(e=>e.style.width=e.dataset.w+'%'),60);
+}
+function home(){
+  if(!S.goals.length)return overview()+`<div class="empty"><span class="em">🐾</span><h2>Make room for a little dream.</h2><p><small>A new PC, a weekend away, or a rainy-day cushion. Pick something worth saving for.</small></p><br><button class="btn" data-a="new">Create a goal</button></div>${foot()}`;
+  return overview()+`<div class="section-head"><h2>Your goals</h2><small>One contribution closer</small></div>`+S.goals.map(g=>{
+    const l=sorted(g)[0],s=saved(g);
+    return`<article class="card" role="button" aria-label="Open ${esc(g.name)}" data-a="open" data-id="${g.id}" tabindex="0">
+      <div class="row">${ico(g)}<div class="grow"><h3>${esc(g.name)}</h3><small>${g.date?'Target date: '+fdate(g.date):'No target date'}</small></div><b class="pct num">${Math.round(pctOf(g))}%</b></div>
+      <div class="bar"><i data-w="${pctOf(g)}" style="--c:${esc(g.icon.color)}"></i></div>
+      <div class="row sp"><span><b>${money(s,g.currency)}</b> <small>saved of ${money(g.target,g.currency)}</small></span></div>
+      <small class="rec">${l?`Latest: ${l.amt<0?'-':'+'}${money(Math.abs(l.amt),g.currency)} on ${fdate(l.date)}`:'No contributions yet'}</small></article>`}).join('')+foot();
+}
+function overview(){
+  const done=S.goals.filter(g=>saved(g)>=g.target).length,totals={};
+  S.goals.forEach(g=>totals[g.currency]=(totals[g.currency]||0)+saved(g));
+  return `<section class="overview"><div class="eyebrow">Your little savings sanctuary</div><h2>Big dreams. Small steps.</h2><p>Every bit you put aside is a little promise to your future self. Stashley is here to cheer you on.</p><div class="overview-stats"><div><b>${S.goals.length}</b><small>Goals in your stash</small></div><div><b>${done}</b><small>Dreams reached</small></div>${Object.entries(totals).map(([c,n])=>`<div><b>${money(n,c)}</b><small>Total saved · ${c}</small></div>`).join('')}</div></section>`;
+}
+const foot=()=>`<div class="foot"><button class="ghost" data-a="exp">Export backup</button><button class="ghost" data-a="imp">Import backup</button><button class="ghost" data-a="mascot" id="mascotBtn" aria-pressed="true">Stashley: on</button></div>`;
+function estimate(g){
+  const rem=g.target-saved(g);
+  if(rem<=0)return'You hit your goal. Time to celebrate 🎉';
+  if(!g.date)return null;
+  const days=(pd(g.date,1)-new Date())/864e5;
+  if(days<=0)return`Your target date has passed. You still need ${money(rem,g.currency)}.`;
+  const [lab,per]=FREQ[g.freq],n=Math.max(1,Math.ceil(days/per));
+  return`Save about <b>${money(Math.ceil(rem/n*100)/100,g.currency)}</b> ${lab} for ${n} ${n>1?'saving sessions':'saving session'} to reach your goal by ${fdate(g.date)}.`;
+}
+const stat=(a,b)=>`<div class="stat"><small>${a}</small><b>${b}</b></div>`;
+function detail(g){
+  const s=saved(g),est=estimate(g),logs=sorted(g);
+  return`<button class="ghost" data-a="back">Back</button>
+  <section class="hero">${ico(g,1)}<h2>${esc(g.name)}</h2><div class="num">${money(s,g.currency)}</div><small>of ${money(g.target,g.currency)} (${Math.round(pctOf(g))}%)</small>
+  <div class="bar lg"><i data-w="${pctOf(g)}" style="--c:${esc(g.icon.color)}"></i></div></section>
+  <section class="grid">${stat('Remaining',money(Math.max(0,g.target-s),g.currency))}${stat('Target date',g.date?fdate(g.date):'Not set')}${stat('Savings frequency',FREQ[g.freq][0].replace('every ','Every '))}${stat('Reminder',g.remind.on?DAYS[g.remind.day]+' at '+g.remind.time:'Off')}</section>
+  ${est?`<div class="note">💡 ${est}</div>`:''}
+  <div class="acts"><button class="btn" data-a="add">+ Add contribution</button><button class="ghost" data-a="edit">Edit</button><button class="ghost danger" data-a="del">Delete</button></div>
+  <h4>Recent contributions</h4>
+  ${logs.length?`<ul>${logs.map(l=>`<li><span class="dot ${l.amt<0?'neg':''}">${l.amt<0?'-':'+'}</span><div class="grow"><b>${money(Math.abs(l.amt),g.currency)}</b><small>${fdate(l.date)}${l.note?' · '+esc(l.note):''}</small></div><button class="x" data-a="dl" data-l="${l.id}" aria-label="Delete entry">✕</button></li>`).join('')}</ul>`:'<small>Nothing logged yet. Add your first contribution.</small>'}`;
+}
+const curId=()=>+(location.hash.match(/^#g\/(\d+)/)||[])[1];
+const curGoal=()=>S.goals.find(g=>g.id===curId());
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-a]');
+  if(e.target.closest('[data-close]'))e.target.closest('dialog').close();
+  if(!t)return;
+  const a=t.dataset.a;
+  if(a==='open')location.hash='g/'+t.dataset.id;
+  else if(a==='back')location.hash='';
+  else if(a==='new')openGoal();
+  else if(a==='edit')openGoal(curGoal());
+  else if(a==='add')openContrib();
+  else if(a==='del'){if(confirm('Delete this goal and all its logs?')){S.goals=S.goals.filter(g=>g.id!==curId());const ok=save();location.hash='';render();if(ok)toast('Goal deleted')}}
+  else if(a==='dl'){const g=curGoal();if(g&&confirm('Delete this contribution?')){g.logs=g.logs.filter(l=>l.id!=t.dataset.l);save();render()}}
+  else if(a==='exp'){if(!('download' in document.createElement('a'))){window.open('data:text/plain;charset=utf-8,'+encodeURIComponent(JSON.stringify(S)));return}const b=new Blob([JSON.stringify(S)],{type:'application/json'}),u=document.createElement('a');u.href=URL.createObjectURL(b);u.download='stash-backup-'+today()+'.json';u.click();setTimeout(()=>URL.revokeObjectURL(u.href),1000)}
+  else if(a==='imp')$('#imp').click();
+});
+view.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.dataset.a==='open'){e.preventDefault();e.target.click()}});
+$('#fab').onclick=$('#newTop').onclick=()=>openGoal();
+window.addEventListener('hashchange',render);
+$('#imp').onchange=e=>{const f=e.target.files[0];if(!f)return;if(f.size>20*1024*1024){toast('Choose a backup smaller than 20 MB');e.target.value='';return}const r=new FileReader();
+  r.onerror=()=>{toast('Could not read this backup');e.target.value=''};r.onload=()=>{try{const d=JSON.parse(r.result);const clean=normalize(d);if(confirm('Replace current data with this backup?')){S=clean;const ok=save();render();if(ok)toast('Backup restored')}}catch(_e){toast('That file is not a valid backup')}e.target.value=''};r.readAsText(f)};
+
+/* ---------- goal form ---------- */
+let draft;
+const CUR=(()=>{try{return Intl.supportedValuesOf('currency')}catch(_e){return['USD','EUR','GBP','JPY','PHP','AUD','CAD','SGD','KRW','INR','CNY']}})();
+let dn;try{dn=new Intl.DisplayNames(undefined,{type:'currency'})}catch(_e){}
+$('#gcur').innerHTML=CUR.map(c=>`<option value="${c}">${c}${dn?' - '+esc(dn.of(c)||''):''}</option>`).join('');
+$('#gday').innerHTML=DAYS.map((d,i)=>`<option value="${i}">${d}</option>`).join('');
+$('#emojis').innerHTML=EMOJI.map(m=>`<button type="button" data-e="${m}">${m}</button>`).join('');
+$('#swatches').innerHTML=COLORS.map(c=>`<button type="button" class="sw" data-c="${c}" style="background:${c}" aria-label="Color ${c}"></button>`).join('')+'<input type="color" id="gcol" aria-label="Custom color">';
+function prev(){
+  $('#prev').innerHTML=ico({icon:draft},1);
+  document.querySelectorAll('#emojis button').forEach(b=>b.classList.toggle('sel',!draft.src&&b.dataset.e===draft.emoji));
+  document.querySelectorAll('.sw').forEach(b=>b.classList.toggle('sel',b.dataset.c===draft.color));
+}
+function tab(t){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('#tEmoji').classList.toggle('hide',t!=='emoji');$('#tPhoto').classList.toggle('hide',t!=='photo')}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+$('#emojis').onclick=e=>{const b=e.target.closest('button');if(b){draft.emoji=b.dataset.e;draft.src='';prev()}};
+$('#swatches').onclick=e=>{const b=e.target.closest('.sw');if(b){draft.color=b.dataset.c;prev()}};
+$('#gcol').oninput=e=>{draft.color=e.target.value;prev()};
+$('#gurl').onchange=e=>{draft.src=safeImage(e.target.value.trim());if(e.target.value&&!draft.src)toast('Use an http or https image link');prev()};
+$('#gfile').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  if(!f.type.startsWith('image/')||f.size>15*1024*1024){toast('Choose an image smaller than 15 MB');e.target.value='';return}
+  const currentDraft=draft,r=new FileReader();
+  r.onerror=()=>toast('This image could not be read');
+  r.onload=()=>{const im=new Image();im.onerror=()=>toast('This image format could not be opened');im.onload=()=>{
+    if(draft!==currentDraft||!$('#gd').open)return;
+    try{const k=Math.min(1,256/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));const ctx=c.getContext('2d');ctx.fillStyle='#f5f2fb';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(im,0,0,c.width,c.height);draft.src=c.toDataURL('image/jpeg',.82);prev()}catch(_e){toast('This image could not be processed')}
+  };im.src=r.result};r.readAsDataURL(f);
+};
+$('#grem').onchange=async e=>{
+  if(e.target.checked&&'Notification' in window&&Notification.permission!=='granted'){
+    let p;try{p=await Notification.requestPermission()}catch(_e){p='denied'}
+    if(p!=='granted'){e.target.checked=false;toast('Allow notifications in your browser to use reminders')}
+  }else if(e.target.checked&&!('Notification' in window))toast('This browser has no notifications, you will see in-app reminders');
+  $('#remBox').classList.toggle('hide',!e.target.checked);
+};
+let editing=null;
+function openGoal(g){
+  editing=g||null;$('#gt').textContent=g?'Edit goal':'New goal';
+  draft=g?Object.assign({},g.icon):{emoji:'💰',color:COLORS[0],src:''};
+  $('#gn').value=g?g.name:'';$('#gamt').value=g?g.target:'';$('#gcur').value=g?g.currency:'USD';
+  $('#gdate').value=g?g.date||'':'';$('#gfreq').value=g?g.freq:'weekly';
+  $('#grem').checked=!!(g&&g.remind.on);$('#remBox').classList.toggle('hide',!$('#grem').checked);
+  $('#gday').value=g?g.remind.day:1;$('#gtime').value=g?g.remind.time:'18:00';
+  $('#gurl').value=draft.src&&draft.src.startsWith('http')?draft.src:'';$('#gfile').value='';
+  tab(draft.src?'photo':'emoji');prev();$('#gd').showModal();
+}
+$('#gf').onsubmit=e=>{
+  e.preventDefault();
+  const o={name:$('#gn').value.trim(),icon:Object.assign({},draft),target:+$('#gamt').value,currency:$('#gcur').value,date:$('#gdate').value,freq:$('#gfreq').value,
+    remind:{on:$('#grem').checked,day:+$('#gday').value,time:$('#gtime').value||'18:00'}};
+  if(!o.name||!Number.isFinite(o.target)||!(o.target>0)||o.target>1e12){toast('Enter a name and a target up to 1 trillion');return}
+  if(editing)Object.assign(editing,o);else S.goals.unshift(Object.assign({id:nextId(),logs:[]},o));
+  const ok=save();$('#gd').close();render();if(ok)toast(editing?'Goal updated':'Goal created')
+};
+
+/* ---------- contribution form ---------- */
+function openContrib(){const g=curGoal();$('#camtL').textContent='Amount ('+g.currency+')';$('#camt').value='';$('#cnote').value='';$('#cdate').value=today();(document.querySelector('#cf input[value=add]').checked=true);$('#cd').showModal()}
+$('#cf').onsubmit=e=>{
+  e.preventDefault();
+  const g=curGoal(),n=+$('#camt').value;if(!g||!Number.isFinite(n)||!(n>0)||n>1e12){toast('Enter an amount up to 1 trillion');return}
+  if(!validDate($('#cdate').value)){toast('Choose a valid date');return}
+  if(ctv()==='deduct'&&n>saved(g)){toast('You can only deduct the amount already saved');return}
+  g.logs.push({id:nextId(),amt:ctv()==='deduct'?-n:n,date:$('#cdate').value||today(),note:$('#cnote').value.trim()});
+  const ok=save();$('#cd').close();render();if(ok)toast(saved(g)>=g.target?'Goal reached! 🎉':ctv()==='deduct'?'Deducted':'Added');
+};
+
+/* ---------- reminders ---------- */
+function toast(m){
+  const t=$('#toast');clearTimeout(toast.t);clearTimeout(toast.h);t.textContent=m;
+  try{t.hidePopover()}catch(_e){}try{t.showPopover()}catch(_e){}
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  toast.t=setTimeout(()=>{t.classList.remove('show');toast.h=setTimeout(()=>{try{t.hidePopover()}catch(_e){}},450)},3200);
+}
+function check(){
+  const d=new Date(),hm=d.toTimeString().slice(0,5),key=d.toDateString();
+  let f={};try{f=JSON.parse(localStorage.getItem('stash.fired'))||{}}catch(_e){}
+  S.goals.forEach(g=>{const r=g.remind;
+    if(r&&r.on&&r.day===d.getDay()&&hm>=r.time&&f[g.id]!==key){
+      f[g.id]=key;toast('Time to save for '+g.name+' 💰');
+      try{if('Notification' in window&&Notification.permission==='granted')new Notification('Time to save 💰',{body:'Add to "'+g.name+'"'})}catch(_e){}
+    }});
+  try{localStorage.setItem('stash.fired',JSON.stringify(f))}catch(_e){}
+}
+setInterval(check,20000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
+render();check();if(loadWarning)setTimeout(()=>toast("Saved data could not be read. Your original storage has not been overwritten."),200);
+</script>
+
+<script>
+(()=>{
+/* ---------- Stashley, the savings cat (no AI, just rules) ---------- */
+const FACES=['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
+const W=52;const vvh=()=>window.visualViewport?window.visualViewport.height:innerHeight;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const RM=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+const dialogOpen=()=>!!document.querySelector('dialog[open]');
+const SG={on:(()=>{try{return localStorage.getItem('stash.mascot')!=='off'}catch(_e){return true}})()};
+
+/* ---- element ---- */
+const el=document.createElement('div');
+el.id='stashley';el.setAttribute('popover','manual');el.style.display='none';
+el.innerHTML='<div class="sg-bubble l" aria-live="polite"></div><button type="button" class="sg-cat" aria-label="Stashley the cat. Tap for another message"><span class="sg-hover"><span class="sg-tilt"><span class="sg-face on">😺</span><span class="sg-face"></span></span></span></button><i class="sg-shadow"></i>';
+document.body.appendChild(el);
+const bub=el.querySelector('.sg-bubble'),tilt=el.querySelector('.sg-tilt'),faces=Array.prototype.slice.call(el.querySelectorAll('.sg-face'));
+
+/* ---- state ---- */
+const seen={};
+let tok=0,bt,homeT,ct,idleT,rt,fi=0;
+let lastSay=0,lastAct=0,lastText='',lastKey2='',taps=[];
+const recentLines=[];const lineBags=new WeakMap();
+function choose(pool){let bag=lineBags.get(pool);if(!(bag&&bag.length)){bag=[...pool];for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]]}lineBags.set(pool,bag)}return bag.pop()}
+let shown=false,flying=false,anim=null,bubbleOn=false;
+let pos={x:-120,y:-120};
+const cur={sel:null,mode:'above-r'};
+
+/* ---- face (only the nine cat faces) ---- */
+function drawFace(node,f){
+  const happy=['😸','😹','😽'].includes(f),wide=f==='🙀',sad=f==='😿',grumpy=f==='😾';
+  node.dataset.mood=f;node.setAttribute('aria-hidden','true');
+  node.innerHTML='<span class="kitty"><span class="k-eyes"><i>'+(happy?'⌒':wide?'●':f==='😻'?'♥':grumpy?'╲':'•')+'</i><i>'+(happy?'⌒':wide?'●':f==='😼'?'⌒':grumpy?'╱':'×')+'</i></span><span class="k-mouth">'+(wide?'o':sad?'︵':f==='😽'?'ε':f==='😹'?'▽':grumpy?'—':'ω')+'</span><span class="k-bell"></span></span>';
+}
+faces.forEach(n=>drawFace(n,'😺'));
+function setFace(f){
+  if(!FACES.includes(f))f='😺';
+  if(faces[fi].dataset.mood===f)return;
+  const a=faces[fi];fi=1-fi;const b=faces[fi];
+  drawFace(b,f);a.classList.remove('on');b.classList.add('on');
+}
+const restFace=()=>'😺';
+
+/* ---- positions ---- */
+function setPos(x,y){pos={x,y};el.style.transform=`translate(${x}px,${y}px)`}
+const rest=()=>({x:16,y:Math.max(8,(vvh())-W-30)});
+function spot(sel,mode,follow){
+  const vw=innerWidth,vh=innerHeight,dlg=!!sel&&sel[0]==='#';
+  const top=dlg?6:((document.querySelector('.top')||{getBoundingClientRect:()=>({bottom:0})}).getBoundingClientRect().bottom+4);
+  const t=sel&&document.querySelector(sel);
+  if(t){
+    const r=t.getBoundingClientRect();
+    if(r.width&&(follow||(r.bottom>top&&r.top<vh))){
+      const x=mode==='in-br'?r.right-W-6:r.right-W-4;
+      const y=mode==='in-br'?r.bottom-W-6:r.top-W-4;
+      return{x:clamp(x,8,vw-W-8),y:clamp(y,top,vh-W-(dlg?6:20))};
+    }
+  }
+  return rest();
+}
+function placeBubble(p){
+  const vw=innerWidth,right=(p.x+W/2)>vw/2,below=p.y<190;
+  bub.style.maxHeight=Math.max(60,Math.min(180,below?(vvh())-p.y-W-24:p.y-20))+'px';
+  bub.classList.toggle('r',right);bub.classList.toggle('l',!right);bub.classList.toggle('below',below);
+  bub.style.maxWidth=Math.max(140,Math.min(250,right?p.x+W-10:vw-p.x-10))+'px';
+}
+function reposition(){
+  if(!shown||flying)return;
+  const s=cur.sel?spot(cur.sel,cur.mode,true):rest();
+  setPos(s.x,s.y);placeBubble(s);
+}
+
+/* ---- show / hide ---- */
+function ensureShown(){
+  if(shown)return;
+  shown=true;el.style.display='';
+  setPos(-90,rest().y-60);
+  try{el.showPopover()}catch(_e){}
+}
+function raise(){try{el.hidePopover()}catch(_e){}try{el.showPopover()}catch(_e){}}
+function hideAll(){
+  tok++;clearTimeout(bt);clearTimeout(homeT);hideBubble();
+  if(anim){anim.cancel();anim=null}flying=false;shown=false;el.style.display='none';
+  try{el.hidePopover()}catch(_e){}
+}
+function showBubble(t){bub.textContent=t;placeBubble(pos);bub.classList.add('show');bubbleOn=true}
+function hideBubble(){bub.classList.remove('show');bubbleOn=false}
+
+/* ---- flight: a curved, fluttery path with banking and squash ---- */
+function flyTo(x1,y1){
+  return new Promise(res=>{
+    const r=el.getBoundingClientRect(),x0=r.left,y0=r.top;
+    if(anim){el.style.transform=`translate(${x0}px,${y0}px)`;anim.cancel();anim=null;flying=false}
+    const dist=Math.hypot(x1-x0,y1-y0);
+    if(dist<6){setPos(x1,y1);return res()}
+    if(RM()||document.hidden){setPos(x1,y1);flying=false;return res()}
+    if(!el.animate){const ms=Math.min(1500,Math.max(700,500+dist*.8));el.style.transition='transform '+ms+'ms ease-in-out';setPos(x1,y1);setTimeout(()=>{el.style.transition='';res()},ms);return}
+    const nx=-(y1-y0)/dist,ny=(x1-x0)/dist,bend=(Math.random()<.5?-1:1)*Math.min(120,dist*.3);
+    const cx=(x0+x1)/2+nx*bend,cy=(y0+y1)/2+ny*bend-30;
+    const N=26,frames=[];
+    for(let k=0;k<=N;k++){
+      const t=k/N,e=t*t*(3-2*t),u=1-e;
+      let x=u*u*x0+2*u*e*cx+e*e*x1,y=u*u*y0+2*u*e*cy+e*e*y1;
+      const w=Math.sin(t*Math.PI)*Math.sin(t*Math.PI*5)*5;
+      x+=nx*w;y+=ny*w;
+      frames.push({transform:`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`});
+    }
+    const dur=Math.min(1700,Math.max(750,550+dist*.85)),dir=x1>=x0?1:-1;
+    flying=true;
+    const a=el.animate(frames,{duration:dur,easing:'linear',fill:'forwards'});
+    anim=a;
+    tilt.animate([
+      {transform:'rotate(0) scale(1)'},
+      {transform:`rotate(${dir*14}deg) scale(1.08,.94)`,offset:.25},
+      {transform:`rotate(${dir*6}deg) scale(.95,1.06)`,offset:.55},
+      {transform:`rotate(${dir*10}deg) scale(1.06,.95)`,offset:.8},
+      {transform:'rotate(0) scale(1)'}
+    ],{duration:dur,easing:'ease-in-out'});
+    a.onfinish=()=>{if(anim===a){setPos(x1,y1);a.cancel();anim=null;flying=false}res()};
+    a.oncancel=()=>{if(anim===a){anim=null;flying=false}res()};
+  });
+}
+function confetti(n){if(RM()||!el.animate)return;
+  const cols=['#a98af0','#f58fc4','#ff9f7a','#ffd166','#6fd3a0','#5fc7e8'];
+  for(let k=0;k<n;k++){
+    const p=document.createElement('i');p.className='sg-conf';p.style.background=cols[k%cols.length];el.appendChild(p);
+    const a=Math.random()*Math.PI*2,d=50+Math.random()*90,dx=Math.cos(a)*d,dy=Math.sin(a)*d-40;
+    p.animate([
+      {transform:'translate(0,0) rotate(0)',opacity:1},
+      {transform:`translate(${dx}px,${dy}px) rotate(${Math.random()*360}deg)`,opacity:1,offset:.45},
+      {transform:`translate(${dx*1.1}px,${dy+120}px) rotate(${Math.random()*720}deg)`,opacity:0}
+    ],{duration:1300+Math.random()*500,easing:'cubic-bezier(.2,.7,.4,1)'}).onfinish=()=>p.remove();
+  }
+}
+
+/* ---- say: change face, fly to the anchor, then show the bubble ---- */
+async function say(o){
+  if(!SG.on&&!o.force)return;
+  const my=++tok;
+  clearTimeout(bt);clearTimeout(homeT);clearTimeout(ct);hideBubble();
+  lastSay=Date.now();lastText=o.msg;recentLines.push(o.msg);if(recentLines.length>12)recentLines.shift();
+  ensureShown();
+  if(dialogOpen())raise();
+  setFace(o.mood);
+  const to=spot(o.sel,o.mode);
+  await flyTo(to.x,to.y);
+  if(my!==tok)return;
+  cur.sel=o.sel||null;cur.mode=o.mode||'above-r';
+  showBubble(o.msg);
+  if(o.fx==='confetti')confetti(40);else if(o.fx==='sparkle')confetti(14);
+  if(o.fx==='zoom'){
+    await sleep(1300);if(my!==tok)return;
+    hideBubble();
+    for(let k=0;k<3;k++){await flyTo(8+Math.random()*(innerWidth-W-16),80+Math.random()*(innerHeight-220));if(my!==tok)return}
+    setFace(restFace());goHome();return;
+  }
+  const ms=clamp(2200+o.msg.length*60,3600,9000);
+  bt=setTimeout(()=>{
+    if(my!==tok)return;
+    hideBubble();setFace(restFace());
+    homeT=setTimeout(goHome,7000);
+  },ms);
+}
+function resetReaction(){
+  tok++;clearTimeout(bt);clearTimeout(homeT);clearTimeout(ct);
+  hideBubble();setFace(restFace());
+  if(anim){const r=el.getBoundingClientRect();setPos(r.left,r.top);const old=anim;anim=null;flying=false;old.cancel()}
+  cur.sel=null;cur.mode='above-r';
+}
+function goHome(){
+  if(!SG.on||!shown||dialogOpen()||bubbleOn)return;
+  cur.sel=null;const s=rest();flyTo(s.x,s.y);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dialogOpen()){resetReaction();goHome()}});
+if(window.visualViewport)window.visualViewport.addEventListener('resize',reposition);
+bub.addEventListener('click',()=>{
+  resetReaction();goHome();
+});
+
+/* ---- facts about a goal ---- */
+function info(g){
+  const s=saved(g),rem=g.target-s,pct=clamp(s/g.target*100,0,100),logs=sorted(g);
+  let ded=0;for(const l of logs){if(l.amt<0)ded++;else break}
+  const la=logs.find(l=>l.amt>0);
+  const since=la?Math.round((pd(today()).getTime()-pd(la.date).getTime())/864e5):null;
+  const age=g.id>1e12?Math.floor((Date.now()-g.id)/864e5):0;
+  let daysLeft=null,exp=null,per=null;
+  if(g.date){
+    const end=pd(g.date,1).getTime();
+    daysLeft=Math.ceil((end-Date.now())/864e5);
+    if(g.id>1e12&&end>g.id)exp=clamp((Date.now()-g.id)/(end-g.id)*100,0,100);
+    if(daysLeft>0&&rem>0){
+      const [lab,p]=FREQ[g.freq]||FREQ.weekly,k=Math.max(1,Math.ceil(daysLeft/p));
+      per=money(Math.ceil(rem/k*100)/100,g.currency)+' '+lab;
+    }
+  }
+  return{s,rem,pct,logs,ded,since,age,daysLeft,per,nlogs:logs.length,last:logs[0],
+    behind:exp!=null&&age>=3&&rem>0&&exp-pct>15,
+    ahead:exp!=null&&age>=3&&rem>0&&pct>0&&pct-exp>10};
+}
+const short=n=>n.length>22?n.slice(0,21)+'…':n;
+const greet=()=>{const h=new Date().getHours();return h>=5&&h<12?'Good morning':h>=12&&h<18?'Good afternoon':h>=18&&h<23?'Good evening':'Hello, night owl'};
+const fmt=(s,v)=>s.replace(/\{(\w+)\}/g,(_,k)=>(v[k]==null?'':v[k]));
+function vars(g,i){
+  const n=S.goals.length,v={greet:greet(),count:n,avg:n?Math.round(S.goals.reduce((a,x)=>a+pctOf(x),0)/n):0};
+  if(g){i=i||info(g);Object.assign(v,{name:short(g.name),pct:Math.round(i.pct),rem:money(Math.max(0,i.rem),g.currency),saved:money(i.s,g.currency),n:i.ded,days:i.daysLeft,since:i.since,per:i.per||''})}
+  return v;
+}
+function ctx(){
+  const m=location.hash.match(/^#g\/(\d+)/),g=m&&S.goals.find(x=>x.id==m[1]);
+  return g?{scr:'detail',g,i:info(g)}:{scr:'home',goals:S.goals.map(g=>({g,i:info(g)}))};
+}
+
+/* ---- rules: [screen, priority, cooldown, test, messages, anchor] ---- */
+const CARD=g=>g&&`.card[data-id="${g.id}"]`;
+const find=(c,f,by)=>{const a=c.goals.filter(f);return a.length?(by?a.sort(by)[0]:rnd(a)):null};
+const JOKES=[
+  ['😹','I only chase one thing: the progress bar going up.'],
+  ['😼',"Not saying skip the coffee. But I'm not not saying it."],
+  ['😹','Cats sleep 16 hours a day. Saving is easier when you nap.'],
+  ['😸','Psst. A coin a day keeps the broke away.'],
+  ['😺','Small paws, small deposits, big results.'],
+  ['😹',"I don't understand compound interest, but I respect it."],
+  ['😼','Fun fact: knocking things off tables is free. Saving is better.']
+];
+const RULES=[
+  /* home */
+  {id:'h_empty',scr:'home',pri:9,cd:6e4,test:c=>!c.goals.length&&{},mood:'😺',msgs:["Hi, I'm Stashley! Make your first goal and I'll cheer you on.",'A fresh start. What are we saving for?'],sel:'.empty',mode:'in-br'},
+  {id:'h_ded',scr:'home',pri:7,cd:9e5,test:c=>find(c,x=>x.i.ded>=2,(a,b)=>b.i.ded-a.i.ded),mood:'😿',msgs:['{name} has had {n} withdrawals in a row. Everything okay?','Those withdrawals from {name} are making me sad.'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_near',scr:'home',pri:6,cd:9e5,test:c=>find(c,x=>x.i.pct>=85&&x.i.rem>0,(a,b)=>b.i.pct-a.i.pct),mood:'😻',msgs:['{name} is at {pct}%. So close I can almost taste the tuna.','Just {rem} left on {name}. Finish it!'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_done',scr:'home',pri:5,cd:9e5,test:c=>find(c,x=>x.i.rem<=0),mood:'😻',msgs:['{name} is fully funded. Look at you go!','{name} is complete. I knew you could do it.'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_behind',scr:'home',pri:5,cd:9e5,test:c=>find(c,x=>x.i.behind),mood:'😾',msgs:['{name} is behind schedule. Just saying.','The calendar is winning against {name}. Fight back!'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_stale',scr:'home',pri:4,cd:12e5,test:c=>find(c,x=>x.i.since!=null&&x.i.since>=14&&x.i.rem>0,(a,b)=>b.i.since-a.i.since),mood:'😿',msgs:['It has been {since} days since you added to {name}. I miss the bar going up.'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_blank',scr:'home',pri:4,cd:12e5,test:c=>find(c,x=>x.i.nlogs===0&&x.i.age>=3&&x.i.rem>0),mood:'😺',msgs:['{name} has no contributions yet. Even a tiny first deposit gets it going.'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_welcome',scr:'home',pri:3,cd:18e5,test:c=>c.goals.length&&c.goals[0],msgs:[v=>{const h=new Date().getHours();return h<5||h>=23?['😹','Saving at this hour? Dedicated. Or sleepless.']:['😺',`${v.greet}! ${v.count} goal${v.count>1?'s':''} on the go. Pick one and let's check in.`]}],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_avg',scr:'home',pri:2,cd:6e5,test:c=>c.goals.length>1&&{},mood:'😸',msgs:['{count} goals, {avg}% average progress. Not bad at all.'],sel:'.card',mode:'in-br'},
+  /* detail */
+  {id:'d_done',scr:'detail',pri:10,cd:3e5,test:c=>c.i.rem<=0,mood:'😻',msgs:['{name} is DONE! {saved} saved. Victory zoomies!','Goal reached! I am so proud of you.'],sel:'.bar.lg',mode:'above-r',fx:'confetti'},
+  {id:'d_ded',scr:'detail',pri:9,cd:3e5,test:c=>c.i.ded>=2,mood:'😿',msgs:[v=>v.n>=3?'{n} withdrawals in a row on {name}... I am worried.':'Two withdrawals in a row. Let us not make it three.'],sel:'ul',mode:'above-r'},
+  {id:'d_over',scr:'detail',pri:9,cd:3e5,test:c=>c.i.daysLeft!=null&&c.i.daysLeft<=0&&c.i.rem>0,mood:'😿',msgs:['The target date for {name} has passed. You can move it with Edit.'],sel:'.acts',mode:'above-r'},
+  {id:'d_close',scr:'detail',pri:9,cd:3e5,test:c=>c.i.daysLeft!=null&&c.i.daysLeft>0&&c.i.daysLeft<=7&&c.i.rem>0&&c.i.pct<90,mood:'🙀',msgs:[v=>v.days===1?'Today is the target date and {rem} is still left!':'Only {days} days left and {rem} to go. Deep breath.'],sel:'.note',mode:'above-r'},
+  {id:'d_behind',scr:'detail',pri:7,cd:3e5,test:c=>c.i.behind,mood:'😾',msgs:['You are behind schedule on {name}. Time to catch up.','The calendar is ahead of the bar on {name}. Let us fix that.'],sel:'.note',mode:'above-r'},
+  {id:'d_stale',scr:'detail',pri:6,cd:3e5,test:c=>c.i.since!=null&&c.i.since>=14&&c.i.rem>0,mood:'😿',msgs:['{since} days since your last deposit. {name} misses you.'],sel:'.acts',mode:'above-r'},
+  {id:'d_ahead',scr:'detail',pri:6,cd:3e5,test:c=>c.i.ahead,mood:'😼',msgs:['Ahead of schedule. Do not get cocky... okay, a little cocky is fine.','Look who is beating the calendar.'],sel:'.note',mode:'above-r'},
+  {id:'d_big',scr:'detail',pri:6,cd:3e5,test:c=>c.i.pct>=75&&c.i.rem>0,msgs:[['😻','{pct}% of {name}! The finish line is right there.'],['😼','Almost there... almost... do not blink.']],sel:'.bar.lg',mode:'above-r'},
+  {id:'d_half',scr:'detail',pri:5,cd:3e5,test:c=>c.i.pct>=50&&c.i.pct<75,mood:'😸',msgs:['Over halfway on {name}. Keep that momentum.','{pct}% done. The bar is looking great.'],sel:'.bar.lg',mode:'above-r'},
+  {id:'d_recent',scr:'detail',pri:5,cd:3e5,test:c=>c.i.last&&c.i.last.amt>0&&c.i.since!=null&&c.i.since<=1&&c.i.nlogs>1&&c.i.rem>0,mood:'😽',msgs:['Thanks for the recent deposit. Purrfect.','Fresh savings, fresh bar. I love it.'],sel:'ul',mode:'above-r'},
+  {id:'d_quarter',scr:'detail',pri:4,cd:3e5,test:c=>c.i.pct>=25&&c.i.pct<50,mood:'😸',msgs:['A solid start: {pct}% done. The first stretch is the hardest.'],sel:'.bar.lg',mode:'above-r'},
+  {id:'d_start',scr:'detail',pri:4,cd:3e5,test:c=>c.i.nlogs>0&&c.i.pct<25,mood:'😺',msgs:['Every coin counts. {rem} to go on {name}.'],sel:'.bar.lg',mode:'above-r'},
+  {id:'d_blank',scr:'detail',pri:4,cd:3e5,test:c=>c.i.nlogs===0,mood:'😺',msgs:['Nothing logged yet. Tap Add contribution and I will do a happy dance.'],sel:'.acts',mode:'above-r'},
+  {id:'d_tip',scr:'detail',pri:3,cd:6e5,test:c=>!!c.i.per&&c.i.rem>0,mood:'😺',msgs:['Tip: save about {per} and you will land {name} right on time.'],sel:'.note',mode:'above-r'},
+  /* any screen */
+  {id:'any_joke',scr:'*',pri:1,cd:6e4,test:()=>({}),msgs:JOKES,sel:null}
+];
+
+const EXTRA_LINES={"h_empty": ["I brought the paws. You bring the dream. What shall we save for?", "Your first goal can be tiny. We are building a habit, not a spaceship. Yet.", "A wish with a savings plan? Now that is my kind of magic.", "Hello, future saver. Shall we give your next little adventure a name?"], "h_ded": ["A few withdrawals from {name}. We can adjust the plan if life has changed.", "{name} is still here. A smaller next step is perfectly okay.", "Money has a job to do. If {name} helped you today, that counts too."], "h_near": ["{pct}% on {name}. My celebration paws are on standby.", "Only {rem} left. The finish line has entered pouncing distance.", "{name} is nearly funded. I am practicing my victory wiggle."], "h_done": ["{name}: funded. Your patience did that.", "A completed dream in your stash. Please enjoy this very proud purr.", "{name} made it! That deserves a proper little celebration."], "h_behind": ["The timeline for {name} looks tight. Editing the date is an option.", "Plans can change. Let us give {name} a pace that fits your life."], "h_stale": ["{name} can wait until you are ready. Tiny steps still count.", "A little check-in with {name}? No deposit required.", "It has been a while. Would a smaller target make {name} easier to restart?"], "h_blank": ["{name} starts with one contribution. The amount can be small.", "An empty bar is just a bar waiting for its origin story."], "h_welcome": ["{greet}! Your {count} little dreams are right where you left them.", "Welcome back. I have been keeping the goals company.", "{greet}! Want to check on a goal, or just admire the progress?"], "h_avg": ["{count} goals, lots of possibilities. One step at a time.", "Your average progress is {avg}%. Quiet consistency looks good on you."], "d_done": ["{name} is fully funded. You followed through, and it shows.", "{saved} saved. I am officially issuing a victory purr.", "The bar is full. My tiny cat heart is also full."], "d_ded": ["Withdrawals happen. We can rebuild {name} at your pace.", "{name} is a plan, not a test. You can adjust it.", "You used some savings. Let us make the next step manageable."], "d_over": ["A date can move. The progress you made still counts.", "Want to give {name} a little more time? Edit is right there."], "d_close": ["{days} days to go. A realistic new date is okay if you need one.", "A quick check-in: {rem} remains. Let us keep the plan comfortable."], "d_behind": ["The pace looks a bit tight. A new date might help.", "A slower route to {name} is still a route to {name}."], "d_stale": ["No rush. You can restart {name} with a small contribution.", "Welcome back to {name}. The progress you made is still yours."], "d_ahead": ["Ahead of schedule? Look at you making room for future you.", "The calendar is chasing your savings bar. Excellent plot twist."], "d_big": ["{pct}% done. I can practically hear the victory bell.", "{rem} left on {name}. That dream is getting wonderfully close."], "d_half": ["More than halfway. Past you would be pretty pleased.", "{pct}% funded. That is a lot of little decisions adding up."], "d_recent": ["A fresh contribution! Thank you for feeding the progress bar.", "Yesterday's little effort is today's visible progress.", "Another deposit in the books. A very respectable little purr."], "d_quarter": ["{pct}% is a real start. Keep the next step simple.", "The bar is growing roots. Good steady work on {name}."], "d_start": ["The beginning is allowed to look small. Keep going gently.", "{name} has started. That is already more than a wish.", "A few coins at a time is a perfectly valid strategy."], "d_blank": ["First contributions get a complimentary happy cat wiggle.", "A little deposit would give this dream its first pawprint.", "No pressure to start big. We just need a beginning."], "d_tip": ["For this timeline, about {per} per session is the suggested pace.", "Your savings plan suggests {per}. Adjust the date if that feels too steep."], "any_joke": [["😼", "My financial strategy? Sit on the wallet so it cannot leave."], ["😹", "I checked the budget. The imaginary tuna fund is thriving."], ["😺", "A tiny deposit is still bigger than the deposit you only thought about."], ["😽", "This is your reminder to unclench your jaw. Yes, you, spreadsheet gremlin."], ["😼", "Browsing is free. The checkout button is where the plot gets expensive."], ["😸", "You can admire the shiny thing and leave it in the cart. Powerful behavior."], ["😹", "I have nine lives and exactly zero rent payments. Please do not copy my budget."], ["😺", "Future you called. They appreciate the effort."], ["😼", "Paw on the budget. Eyes on the dream."], ["😽", "A water break? I will keep the progress bars warm."], ["😹", "My shopping list says box. The contents are negotiable."], ["😸", "Saving up for something fun is allowed. Joy gets a budget too."]]};
+for(const r of RULES){if(EXTRA_LINES[r.id])r.msgs.push(...EXTRA_LINES[r.id])}
+for(const id of ['h_ded','d_ded','h_behind','d_behind','h_stale','d_stale']){
+  const rule=RULES.find(r=>r.id===id);rule.msgs=[...EXTRA_LINES[id]];rule.mood='😺';
+}
+
+function pick(min,force){
+  const c=ctx(),now=Date.now(),cands=[];
+  for(const r of RULES){
+    if(r.scr!=='*'&&r.scr!==c.scr)continue;
+    if(r.pri<min)continue;
+    let hit;try{hit=r.test(c)}catch(_e){hit=null}
+    if(!hit)continue;
+    const g=c.scr==='detail'?c.g:hit.g,i=c.scr==='detail'?c.i:hit.i;
+    const key=r.id+':'+(g?g.id:'');
+    if(!force&&now-(seen[key]||0)<r.cd)continue;
+    cands.push({r,g,i,key,score:r.pri+Math.random()*.9});
+  }
+  if(!cands.length)return null;
+  if(force){const o=cands.filter(x=>x.key!==lastKey2);return rnd(o.length?o:cands)}
+  return cands.sort((a,b)=>b.score-a.score)[0];
+}
+function deliver(p){
+  const {r,g,i,key}=p,v=vars(g,i);
+  const options=r.msgs.map(m=>{if(typeof m==='function')m=m(v);return Array.isArray(m)?{mood:m[0],txt:fmt(m[1],v)}:{mood:r.mood,txt:fmt(m,v)}});
+  const available=options.filter(m=>!recentLines.includes(m.txt));
+  let picked;
+  for(let n=0;n<r.msgs.length;n++){
+    let m=choose(r.msgs);if(typeof m==='function')m=m(v);
+    const candidate=Array.isArray(m)?{mood:m[0],txt:fmt(m[1],v)}:{mood:r.mood,txt:fmt(m,v)};
+    if(!available.length||available.some(x=>x.txt===candidate.txt)){picked=candidate;break}
+  }
+  const {mood,txt}=picked||available[0]||options[0];
+  seen[key]=Date.now();lastKey2=key;
+  say({mood,msg:txt,sel:typeof r.sel==='function'?r.sel(g):r.sel,mode:r.mode,fx:r.fx});
+}
+
+/* ---- reacting to what the person just did (by diffing goal snapshots) ---- */
+const snap=()=>{const m={};S.goals.forEach(g=>{m[g.id]={n:g.logs.length,s:saved(g),t:g.target,name:g.name}});return m};
+let prevSnap=snap(),lastNavKey=location.hash||'#';
+function diff(a,b){
+  const ev=[];
+  for(const id in b){
+    const n=b[id],o=a[id];
+    if(!o)ev.push({t:'created',id});
+    else if(n.n-o.n===1)ev.push({t:'added',id,o,n});
+    else if(n.n<o.n)ev.push({t:'removed',id});
+    else if(n.n===o.n&&n.t!==o.t)ev.push({t:'target',id,up:n.t>o.t});
+  }
+  for(const id in a)if(!b[id])ev.push({t:'deleted',name:a[id].name});
+  return ev;
+}
+function react(e){
+  const g=S.goals.find(x=>String(x.id)===e.id),onDetail=location.hash.startsWith('#g/');
+  const sel=g?(onDetail?'.bar.lg':CARD(g)):null,mode=onDetail?'above-r':'in-br';
+  const go=(mood,txt,v,fx)=>say({mood,msg:fmt(txt,Object.assign(vars(g),v||{})),sel,mode,fx});
+  if(e.t==='created')return go(...rnd([['😸',"New goal: {name}! I'm already excited. First deposit?"],['😺',"{name}, huh? Good taste. Let's get it funded."]]));
+  if(e.t==='deleted')return say({mood:rnd(['😿','🙀']),msg:fmt(rnd(['Goodbye, {name}. Plans change, it happens.','Poof! {name} is gone.']),{name:short(e.name)})});
+  if(e.t==='removed')return go(...rnd([['😼',"Rewriting history, are we? I won't tell."],['🙀','That entry vanished! Hope you meant to do that.']]));
+  if(e.t==='target')return e.up?go('😼','A bigger target? Ambitious. I like it.'):go('😼','Lowering the target? No judgement... okay, a little judgement.');
+  if(e.t==='added'){
+    const L=g.logs[g.logs.length-1],a=L.amt,abs=Math.abs(a),after=e.n.s,before=e.o.s;
+    const pb=before/g.target*100,pa=after/g.target*100,v={amt:money(abs,g.currency)};
+    if(a>0){
+      const ms=[75,50,25].find(m=>pb<m&&pa>=m);
+      if(after>=g.target&&before<g.target)return go('😻',rnd(['GOAL REACHED! {name} is fully funded. Zoomies time!','{name} is complete! I am so proud of you.']),v,'confetti');
+      if(ms)return go('😻','{m}% of {name}! Keep purring along.',Object.assign({},v,{m:ms}),'sparkle');
+      if(e.n.n===1)return go('😻','Your very first deposit into {name}! A star is born.',v);
+      if(abs<=g.target*.01)return go('😹','{amt}? Tiny but mighty. Every coin counts.',v);
+      if(abs>=g.target*.2)return go('🙀','Whoa, {amt} in one go! Who are you and what did you do with the old you?',v);
+      return go(...rnd([['😽','Thank you! {amt} added to {name}.'],['😸','Nice one. {pct}% there now.'],['😽',"That's the stuff. {rem} to go."]]).concat([v]));
+    }
+    let ded=0;for(const l of sorted(g)){if(l.amt<0)ded++;else break}
+    if(after<=0&&before>0)return go('😺',rnd(['{name} is back at zero. We can start again when you are ready.','Your savings did their job. A fresh start for {name} whenever you want.']),v);
+    if(ded>=3)return go('😺',rnd(['A few withdrawals lately. Would a different timeline help {name}?','Life has needed a little extra lately. Your savings plan can adapt.']),v);
+    if(before>0&&abs>=before*.5)return go('🙀',rnd(['{amt} withdrawn. That is a big change, but the plan can adapt.','Balance updated for {name}. We will take the next step at your pace.']),v);
+    return go(...rnd([['😿','{amt} taken out of {name}. It happens. Let us build it back.'],['😺',"{amt} withdrawn. No guilt, just an updated plan."],['😺','{name} is at {pct}% now. Your next step can be small.'],['😽','Savings are for using too. {amt} recorded.'],['😼','The numbers are updated. I still believe in {name}.']]).concat([v]));
+  }
+}
+function afterRender(){
+  const now=snap(),acted=Date.now()-lastAct<12000,key=location.hash||'#';
+  const evs=acted?diff(prevSnap,now):[];
+  prevSnap=now;
+  const nav=key!==lastNavKey;lastNavKey=key;
+  syncBtn();
+  if(!SG.on)return;
+  if(evs.length===1){clearTimeout(ct);react(evs[0]);return}
+  if(nav){resetReaction();goHome();scheduleConsider();return}
+  reposition();
+}
+function scheduleConsider(){
+  clearTimeout(ct);
+  ct=setTimeout(()=>{
+    if(!SG.on||dialogOpen()||document.hidden)return;
+    const wait=5000-(Date.now()-lastSay);
+    if(wait>0){ct=setTimeout(scheduleConsider,wait);return}
+    const p=pick(3);if(p)deliver(p);
+  },1300);
+}
+new MutationObserver(()=>{clearTimeout(rt);rt=setTimeout(afterRender,90)}).observe(document.querySelector('#view'),{childList:true});
+['pointerdown','keydown','submit'].forEach(t=>document.addEventListener(t,()=>{lastAct=Date.now()},true));
+
+/* Dialog layer changes happen synchronously, before the browser paints. */
+let activeDialog=null,dialogEpoch=0,perchFrame=0;
+function dialogShown(d,s){
+  activeDialog=d;const epoch=++dialogEpoch;
+  resetReaction();
+  if(!SG.on||!shown)return;
+  raise();cur.sel=s;cur.mode='above-r';
+  const started=performance.now();
+  const track=()=>{
+    if(epoch!==dialogEpoch||!d.open||!SG.on)return;
+    // Follow the sheet during its opening animation without a second flight.
+    if(cur.sel===s&&!flying){const p=spot(s,'above-r');setPos(p.x,p.y);placeBubble(p)}
+    if(performance.now()-started<420)perchFrame=requestAnimationFrame(track);
+  };
+  track();
+}
+function dialogClosed(d){
+  if(activeDialog!==d)return;
+  activeDialog=null;dialogEpoch++;cancelAnimationFrame(perchFrame);
+  resetReaction();goHome();scheduleConsider();
+}
+['#gd','#cd'].forEach(s=>{
+  const d=document.querySelector(s),open=d.showModal.bind(d),close=d.close.bind(d);
+  d.showModal=function(...args){open(...args);dialogShown(d,s)};
+  d.close=function(...args){close(...args);dialogClosed(d)};
+  // Native Escape and method=dialog submissions do not call the JS wrapper.
+  d.addEventListener('close',()=>{if(!d.open)dialogClosed(d)});
+});
+document.querySelector('#cf').addEventListener('change',e=>{
+  if(!e.target||e.target.name!=='ct')return;
+  const c=ctx(),v=vars(c.g,c.i);
+  if(e.target.value==='deduct')say({mood:'🙀',msg:fmt(choose(['Taking some out? I will keep the balance tidy.','Savings are here when you need them. How much today?','A withdrawal for {name}. Let us record it accurately.','Life happens. We can adjust the plan after this.']),v),sel:'#cd',mode:'above-r'});
+  else say({mood:'😸',msg:choose(['Back to adding. I am ready for the happy wiggle.','A little top-up? Excellent.','Another pawprint toward the dream.','Deposit mode: activated. Tiny celebration: pending.']),sel:'#cd',mode:'above-r'});
+});
+
+/* ---- reminders, taps, toggle ---- */
+const _toast=toast;
+toast=function(m){
+  _toast.apply(this,arguments);
+  if(typeof m==='string'&&m.startsWith('Time to save for ')&&SG.on&&!dialogOpen()){
+    const g=S.goals.find(x=>m==='Time to save for '+x.name+' 💰');
+    say({mood:'😾',msg:g?fmt(rnd(['Psst! It is saving time for {name}.','{name} is waiting. Chop chop!']),{name:short(g.name)}):'Psst! It is saving time.'});
+  }
+};
+el.querySelector('.sg-cat').addEventListener('click',()=>{
+  if(!SG.on)return;
+  const n=Date.now();taps=taps.filter(t=>n-t<6000);taps.push(n);
+  if(taps.length>=8){taps=[];say({mood:'😹',msg:"Okay okay, I'm ticklish!",sel:cur.sel,mode:cur.mode,fx:'zoom'});return}
+  const p=pick(1,true);if(p)deliver(p);
+});
+function syncBtn(){
+  const b=document.querySelector('#mascotBtn');
+  if(b){b.textContent='Stashley: '+(SG.on?'on':'off');b.setAttribute('aria-pressed',SG.on)}
+}
+function toggle(){
+  SG.on=!SG.on;
+  try{localStorage.setItem('stash.mascot',SG.on?'on':'off')}catch(_e){}
+  syncBtn();
+  if(SG.on)say({mood:'😻',msg:"I'm back! Did you miss me?"});
+  else{say({mood:'😿',msg:"Okay, I'll go nap. Wake me anytime.",force:true});setTimeout(()=>{if(!SG.on)hideAll()},2800)}
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-a]');if(!t)return;
+  if(t.dataset.a==='mascot')toggle();
+  else if(t.dataset.a==='exp'&&SG.on)say({mood:'😸',msg:rnd(['Backup saved. Smart cat.','Backup downloaded. Future you says thanks.']),sel:cur.sel,mode:cur.mode});
+});
+addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(reposition,100)});
+addEventListener('scroll',()=>{if(flying||!shown)return;cancelAnimationFrame(reposition.f);reposition.f=requestAnimationFrame(reposition)},{passive:true});
+
+/* ---- occasional idle chatter ---- */
+function idleTick(){
+  clearTimeout(idleT);
+  idleT=setTimeout(()=>{
+    if(SG.on&&!document.hidden&&!dialogOpen()&&Date.now()-lastAct>20000&&Date.now()-lastSay>30000){const p=pick(1);if(p)deliver(p)}
+    idleTick();
+  },50000+Math.random()*40000);
+}
+syncBtn();idleTick();
+if(SG.on)setTimeout(scheduleConsider,500);
+})();
+</script>
+
+<script type="module">
+/* Cloud sync (optional). Paste your Firebase web app config below.
+   Until you do, the app simply stays local-only. */
+const cfg={apiKey:'AIzaSyAhnRSzRbxnNVC-kNLWT1E4G2ibvP-64GQ',authDomain:'stash-99a44.firebaseapp.com',projectId:'stash-99a44',appId:'1:812876068864:web:f9b3709e6b389d230800e5'};
+try{if(!cfg.apiKey.startsWith('PASTE')){
+  const V='10.12.2',G='https://www.gstatic.com/firebasejs/'+V+'/';
+  const {initializeApp}=await import(G+'firebase-app.js');
+  const {getAuth,onAuthStateChanged,signInWithPopup,GoogleAuthProvider,signOut}=await import(G+'firebase-auth.js');
+  const {getFirestore,doc,setDoc,onSnapshot}=await import(G+'firebase-firestore.js');
+  const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app),btn=document.getElementById('acct');
+  let ref=null,unsub=null,timer;
+  const push=()=>{if(!ref)return;const s=stash.get();setDoc(ref,{json:JSON.stringify(s),ts:s.ts||Date.now()}).catch(()=>toast('Sync failed, it will retry on your next change'))};
+  window.cloudPush=()=>{clearTimeout(timer);timer=setTimeout(push,400)};
+  btn.classList.remove('hide');btn.textContent='Sign in to sync';
+  btn.onclick=async()=>{
+    if(auth.currentUser){if(confirm('Sign out? Your data stays on this device.'))signOut(auth)}
+    else{try{await signInWithPopup(auth,new GoogleAuthProvider())}catch(_e){toast('Sign-in did not finish')}}
+  };
+  onAuthStateChanged(auth,u=>{
+    clearTimeout(timer);if(unsub)unsub();unsub=null;ref=null;
+    if(!u){btn.textContent='Sign in to sync';return}
+    btn.textContent='Synced: '+(u.displayName||'you').split(' ')[0];
+    ref=doc(db,'users',u.uid);
+    unsub=onSnapshot(ref,snap=>{
+      const mine=stash.get().ts||0;
+      if(!snap.exists()){push();return}
+      const d=snap.data();
+      if(d.ts>mine){try{stash.set(JSON.parse(d.json))}catch(_e){toast('Cloud backup could not be read. Local goals are unchanged.')}}
+      else if(d.ts<mine)push();
+    },()=>{btn.textContent='Sync unavailable';toast('Cloud sync is unavailable. You can still save on this device.')});
+  });
+}}catch(_e){const b=document.getElementById('acct');b.classList.remove('hide');b.textContent='On this device';b.disabled=true;b.title='Cloud sync is currently unavailable'}
+</script>
+</body>
+</html>
