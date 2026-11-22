@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#a98af0">
-<title>Stash | Savings Tracker</title>
+<title>.tash | .avings Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
@@ -126,7 +126,7 @@ input[type=checkbox]:checked::after{content:"✓";color:#fff;font-size:16px;font
 #prev .ico.big{width:56px;height:56px;font-size:30px;border-radius:18px}
 @media(hover:none) and (max-width:520px){.fab{bottom:calc(84px + env(safe-area-inset-bottom,0px));right:16px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
-/* ---------- Stashley ---------- */
+/* ---------- .tashley ---------- */
 .foot{flex-wrap:wrap}
 #stashley{position:fixed;inset:0 auto auto 0;margin:0;padding:0;border:0;background:none;overflow:visible;width:52px;height:52px;color:var(--ink);transform:translate(-120px,-120px);pointer-events:none;will-change:transform}
 .sg-cat{pointer-events:auto;display:block;width:52px;height:52px;padding:0;border-radius:50%;position:relative;-webkit-tap-highlight-color:transparent;transition:scale .15s}
@@ -148,7 +148,7 @@ input[type=checkbox]:checked::after{content:"✓";color:#fff;font-size:16px;font
 .sg-bubble.below::after{bottom:auto;top:-5px}
 .sg-conf{position:absolute;left:23px;top:23px;width:7px;height:9px;border-radius:2px;pointer-events:none}
 
-/* Stash • glass edition: static light fields keep the compositor idle. */
+/* .tash • glass edition: static light fields keep the compositor idle. */
 :root{color-scheme:light;--mute:#6c617e;--glass:rgba(255,255,255,.64);--rim:rgba(255,255,255,.88);--sh:0 12px 38px #59407812, inset 0 1px 0 #ffffffc9;--ink:#302442}
 body{background:radial-gradient(ellipse at 8% 8%,#dccdf7 0,transparent 43%),radial-gradient(ellipse at 95% 48%,#fad9e9 0,transparent 45%),radial-gradient(ellipse at 25% 95%,#d4e9ed 0,transparent 44%),#f6f3fa;background-attachment:fixed}
 .wrap{max-width:860px;padding-bottom:150px}
@@ -185,17 +185,51 @@ input,select{background:#ffffff70;border-color:#c5b6dc80}.seg input{display:bloc
 .k-eyes{position:absolute;inset:9px 5px auto;display:flex;justify-content:space-between;font:900 12px/1 system-ui;color:#ec72a8}.k-eyes i{font-style:normal}.k-eyes i:last-child{color:#493456}.k-mouth{position:absolute;bottom:5px;left:0;right:0;font:700 11px/1 system-ui;text-align:center;color:#644477}.k-bell{position:absolute;bottom:-6px;left:15px;width:8px;height:8px;background:#ffda8a;border:1px solid #d5a75f;border-radius:50%;box-shadow:0 -3px 0 2px #ef98c3}
 .sg-face[data-mood="😿"] .k-eyes{transform:rotate(-7deg)}.sg-face[data-mood="😻"] .k-eyes{color:#f2549d}.sg-face[data-mood="🙀"] .k-mouth{font-size:14px}
 .sg-bubble{padding:14px 16px;border-radius:20px;font-size:13px;line-height:1.5;overflow-wrap:anywhere;max-height:180px;overflow-y:auto}.sg-bubble::after{display:none}
-.sg-bubble::before{content:'STASHLEY';display:block;font-size:9px;font-weight:700;letter-spacing:.15em;color:var(--mute);margin-bottom:5px}
+.sg-bubble::before{content:'.TA.HLEY';display:block;font-size:9px;font-weight:700;letter-spacing:.15em;color:var(--mute);margin-bottom:5px}
 @supports not (backdrop-filter:blur(1px)){.card,.stat,li,.overview,.empty,.sg-bubble{background:var(--card)}}
 @media(prefers-color-scheme:dark){:root{color-scheme:dark;--ink:#f3eaff;--mute:#bcb0cf;--glass:rgba(43,32,61,.82);--rim:rgba(222,202,255,.16);--sh:0 12px 38px #00000024,inset 0 1px 0 #ffffff12}body{background:radial-gradient(ellipse at 8% 8%,#342346 0,transparent 43%),radial-gradient(ellipse at 95% 48%,#402438 0,transparent 45%),#17121e}.top{background:#21192ddd}.ghost{background:#ffffff07}.ghost:hover{background:#ffffff17}.card:hover{border-color:#84629f;box-shadow:0 18px 40px #0003}dialog{background:#261d33f5}input,select{background:#1e172c}.card .pct{color:#d4b8f7}.sg-bubble{background:#30243eeb}}
 @media(max-width:520px){.overview{padding:22px}.overview h2{font-size:28px}.card{padding:18px}.hero .num{font-size:40px}.top .r{gap:6px}#acct{max-width:125px;font-size:11px}.brand-sub{font-size:9px}.overview-stats{gap:16px}.overview-stats b{font-size:21px}.foot .ghost{padding:10px 12px}.sg-bubble{max-height:140px}.fab{bottom:calc(24px + env(safe-area-inset-bottom))!important}}
 @media(prefers-reduced-motion:reduce){.sg-hover,.sg-shadow{animation:none!important}}
 
+
+/* ---------- iOS 10 / Safari 10 compatibility ---------- */
+/* Safari 10 has no native dialog element or showModal()/close() API. */
+dialog{display:none;position:fixed;left:0;right:0;top:0;bottom:0;z-index:1000;margin:auto;max-width:480px;max-height:92vh;overflow:auto}
+dialog[open]{display:block}
+body.dialog-fallback-active:before{content:"";position:fixed;z-index:999;left:0;top:0;right:0;bottom:0;background:rgba(20,10,40,.52)}
+body.dialog-fallback-active{overflow:hidden}
+@media(max-width:520px){
+  dialog{top:auto;bottom:0;left:0;right:0;width:100%;max-width:100%;max-height:90vh;margin:0;border-radius:26px 26px 0 0;padding:20px 18px}
+}
+/* Fallbacks for properties Safari 10 does not understand. */
+.row,.acts,.two,.tabs,.seg,.picker,.prev,.btns,.foot,.overview-stats{display:flex}
+.row>*+*{margin-left:12px}
+.acts>*+*{margin-left:8px}
+.two>*{width:calc(50% - 5px)}
+.two>*+*{margin-left:10px}
+.tabs>*+*,.seg>*+*{margin-left:4px}
+.picker>*{margin:3px}
+.prev>*+*{margin-left:12px}
+.btns>*+*{margin-left:8px}
+.foot>*+*{margin-left:10px}
+.overview-stats>*+*{margin-left:20px}
+.grid{display:flex;flex-wrap:wrap}
+.grid>*{width:calc(50% - 5px);margin:5px 2.5px}
+.top{background:rgba(248,244,255,.94)}
+.card,.stat,li,.overview,.empty,.sg-bubble{background:rgba(255,255,255,.88)}
+.sg-cat{transition:transform .15s}
+.sg-cat:active{transform:scale(.9)}
+@media(max-width:520px){
+  dialog{max-height:90vh}
+  .two>*{width:calc(50% - 5px)}
+  .acts .btn{min-width:100%}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div><h1><span>🐾</span> Stash</h1><span class="brand-sub">Little steps. Lovely futures.</span></div><div class="r"><button class="ghost hide" id="acct"></button><button class="btn hide" id="newTop">+ New goal</button></div></div>
+  <div class="top"><div><h1><span>🐾</span> .tash</h1><span class="brand-sub">Little steps. Lovely futures.</span></div><div class="r"><button class="ghost hide" id="acct"></button><button class="btn hide" id="newTop">+ New goal</button></div></div>
   <main id="view"></main>
 </div>
 <button class="btn fab" id="fab" aria-label="New goal">+</button>
@@ -220,11 +254,11 @@ input,select{background:#ffffff70;border-color:#c5b6dc80}.seg input{display:bloc
     </div>
     <div class="two">
       <div><label for="gdate">Target date (optional)</label><input id="gdate" type="date"></div>
-      <div><label for="gfreq">Savings frequency</label><select id="gfreq"><option value="daily">Daily</option><option value="weekly" selected>Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option></select></div>
+      <div><label for="gfreq">.avings frequency</label><select id="gfreq"><option value="daily">Daily</option><option value="weekly" selected>Weekly</option><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option></select></div>
     </div>
     <div class="chk"><input type="checkbox" id="grem"><label for="grem">Remind me to save (optional)</label></div>
     <div class="two hide" id="remBox"><div><label for="gday">Day</label><select id="gday"></select></div><div><label for="gtime">Time</label><input type="time" id="gtime" value="18:00"></div></div>
-    <div class="btns"><button type="button" class="ghost" data-close>Cancel</button><button class="btn" id="gsave">Save goal</button></div>
+    <div class="btns"><button type="button" class="ghost" data-close>Cancel</button><button class="btn" id="gsave">.ave goal</button></div>
   </form>
 </dialog>
 
@@ -235,59 +269,59 @@ input,select{background:#ffffff70;border-color:#c5b6dc80}.seg input{display:bloc
     <label for="camt" id="camtL">Amount</label><input id="camt" type="number" min="0.01" step="any" required inputmode="decimal">
     <label for="cdate">Date</label><input id="cdate" type="date" required>
     <label for="cnote">Note (optional)</label><input id="cnote" maxlength="80" placeholder="Where did it come from?">
-    <div class="btns"><button type="button" class="ghost" data-close>Cancel</button><button class="btn">Save</button></div>
+    <div class="btns"><button type="button" class="ghost" data-close>Cancel</button><button class="btn">.ave</button></div>
   </form>
 </dialog>
 <input type="file" id="imp" accept="application/json" class="hide">
 
 <script>
-const $=s=>document.querySelector(s);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.query.elector(s);
+const esc=s=>.tring(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /* Validate local, imported and synced data through the same boundary. */
-function validDate(v){if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;const d=new Date(v+'T00:00:00Z');return !isNaN(d)&&d.toISOString().slice(0,10)===v}
+function validDate(v){if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;const d=new Date(v+'T00:00:00Z');return !isNaN(d)&&d.toI.O.tring().slice(0,10)===v}
 function normalize(d){
   if(!d||!Array.isArray(d.goals)||d.goals.length>2000)throw Error('Invalid goals');
-  const ids=new Set();
+  const ids=new .et();
   return {ts:Number.isFinite(d.ts)&&d.ts>=0?d.ts:0,goals:d.goals.map(g=>{
-    if(!g||!Number.isSafeInteger(g.id)||g.id<=0||ids.has(g.id)||typeof g.name!=='string'||!g.name.trim()||!Number.isFinite(g.target)||g.target<=0||g.target>1e12||!Array.isArray(g.logs))throw Error('Invalid goal');ids.add(g.id);
+    if(!g||!Number.is.afeInteger(g.id)||g.id<=0||ids.has(g.id)||typeof g.name!=='string'||!g.name.trim()||!Number.isFinite(g.target)||g.target<=0||g.target>1e12||!Array.isArray(g.logs))throw Error('Invalid goal');ids.add(g.id);
     if(!/^[A-Z]{3}$/.test(g.currency||''))throw Error('Invalid currency');
-    const logIds=new Set();
-    return {id:g.id,name:g.name.trim().slice(0,40),target:g.target,currency:g.currency,date:validDate(g.date)?g.date:'',freq:['daily','weekly','biweekly','monthly'].includes(g.freq)?g.freq:'weekly',icon:{emoji:typeof g.icon?.emoji==='string'?g.icon.emoji.slice(0,16):'💰',color:/^#[0-9a-f]{6}$/i.test(g.icon?.color)?g.icon.color:'#a98af0',src:safeImage(g.icon?.src)},remind:{on:g.remind?.on===true,day:Number.isInteger(g.remind?.day)&&g.remind.day>=0&&g.remind.day<=6?g.remind.day:1,time:/^([01]\d|2[0-3]):[0-5]\d$/.test(g.remind?.time)?g.remind.time:'18:00'},logs:g.logs.map(l=>{
-      if(!l||!Number.isSafeInteger(l.id)||logIds.has(l.id)||!Number.isFinite(l.amt)||Math.abs(l.amt)>1e12||!validDate(l.date))throw Error('Invalid contribution');logIds.add(l.id);
+    const logIds=new .et();
+    return {id:g.id,name:g.name.trim().slice(0,40),target:g.target,currency:g.currency,date:validDate(g.date)?g.date:'',freq:['daily','weekly','biweekly','monthly'].includes(g.freq)?g.freq:'weekly',icon:{emoji:typeof (g.icon&&g.icon.emoji)==='string'?g.icon.emoji.slice(0,16):'💰',color:/^#[0-9a-f]{6}$/i.test((g.icon&&g.icon.color))?g.icon.color:'#a98af0',src:safeImage((g.icon&&g.icon.src))},remind:{on:(g.remind&&g.remind.on)===true,day:Number.isInteger((g.remind&&g.remind.day))&&g.remind.day>=0&&g.remind.day<=6?g.remind.day:1,time:/^([01]\d|2[0-3]):[0-5]\d$/.test((g.remind&&g.remind.time))?g.remind.time:'18:00'},logs:g.logs.map(l=>{
+      if(!l||!Number.is.afeInteger(l.id)||logIds.has(l.id)||!Number.isFinite(l.amt)||Math.abs(l.amt)>1e12||!validDate(l.date))throw Error('Invalid contribution');logIds.add(l.id);
       return{id:l.id,amt:l.amt,date:l.date,note:typeof l.note==='string'?l.note.slice(0,80):''};
     })};
   })};
 }
 function safeImage(v){return typeof v==='string'&&(/^(https?:)\/\//i.test(v)||/^data:image\/(png|jpeg|webp|gif);base64,/i.test(v))?v:''}
-let S,loadWarning=false;try{S=normalize(JSON.parse(localStorage.getItem('stash.v1'))||{goals:[]})}catch{S={goals:[]};loadWarning=true}
-function persist(){try{localStorage.setItem('stash.v1',JSON.stringify(S));return true}catch{toast('Could not save on this device. Export a backup before closing.');return false}}
-const save=()=>{S.ts=Date.now();const ok=persist();window.cloudPush&&window.cloudPush();return ok};
-window.stash={get:()=>S,set:d=>{S=normalize(d);persist();render()}};
-const nextId=()=>{let id=Date.now();for(const g of S.goals){id=Math.max(id,g.id);for(const l of g.logs)id=Math.max(id,l.id)}return id+1};
+let .,loadWarning=false;try{.=normalize(J.ON.parse(local.torage.getItem('stash.v1'))||{goals:[]})}catch{.={goals:[]};loadWarning=true}
+function persist(){try{local.torage.setItem('stash.v1',J.ON.stringify(.));return true}catch{toast('Could not save on this device. Export a backup before closing.');return false}}
+const save=()=>{..ts=Date.now();const ok=persist();window.cloudPush&&window.cloudPush();return ok};
+window.stash={get:()=>.,set:d=>{.=normalize(d);persist();render()}};
+const nextId=()=>{let id=Date.now();for(const g of ..goals){id=Math.max(id,g.id);for(const l of g.logs)id=Math.max(id,l.id)}return id+1};
 const FREQ={daily:['every day',1],weekly:['every week',7],biweekly:['every 2 weeks',14],monthly:['every month',30.4375]};
 const EMOJI=['💰','🎮','💻','📱','🎧','✈️','🏠','🚗','🎓','🎁','📷','👟','🐶','💍','🛡️','🎸','🏝️','⌚','🪙','⭐'];
-const COLORS=['#a98af0','#f58fc4','#ff9f7a','#ffd166','#6fd3a0','#5fc7e8','#7b8cff','#9aa0b4'];
-const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const COLOR.=['#a98af0','#f58fc4','#ff9f7a','#ffd166','#6fd3a0','#5fc7e8','#7b8cff','#9aa0b4'];
+const DAY.=['.unday','Monday','Tuesday','Wednesday','Thursday','Friday','.aturday'];
 const money=(n,c)=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:c}).format(n)}catch{return c+' '+n.toFixed(2)}};
 const saved=g=>Math.round(g.logs.reduce((a,l)=>a+l.amt,0)*1e8)/1e8;
 const pctOf=g=>Math.max(0,Math.min(100,saved(g)/g.target*100));
-const fdate=d=>new Date(d+'T00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
-const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+const fdate=d=>new Date(d+'T00:00').toLocaleDate.tring(undefined,{month:'short',day:'numeric',year:'numeric'});
+const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toI.O.tring().slice(0,10)};
 const sorted=g=>[...g.logs].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
 const ico=(g,big)=>g.icon.src?`<img class="ico ${big?'big':''}" src="${esc(g.icon.src)}" alt="">`:`<div class="ico ${big?'big':''}" style="background:${esc(g.icon.color)}33">${esc(g.icon.emoji)}</div>`;
 
 /* ---------- views ---------- */
 const view=$('#view');
 function render(){
-  const m=location.hash.match(/^#g\/(\d+)/),g=m&&S.goals.find(x=>x.id==m[1]);
+  const m=location.hash.match(/^#g\/(\d+)/),g=m&&..goals.find(x=>x.id==m[1]);
   view.style.animation='none';void view.offsetWidth;view.style.animation='';
   if(g){view.innerHTML=detail(g);$('#fab').classList.add('hide');$('#newTop').classList.add('hide')}
   else{if(m)location.hash='';view.innerHTML=home();$('#fab').classList.remove('hide');$('#newTop').classList.remove('hide')}
-  setTimeout(()=>document.querySelectorAll('.bar i').forEach(e=>e.style.width=e.dataset.w+'%'),60);
+  setTimeout(()=>document.query.electorAll('.bar i').forEach(e=>e.style.width=e.dataset.w+'%'),60);
 }
 function home(){
-  if(!S.goals.length)return overview()+`<div class="empty"><span class="em">🐾</span><h2>Make room for a little dream.</h2><p><small>A new PC, a weekend away, or a rainy-day cushion. Pick something worth saving for.</small></p><br><button class="btn" data-a="new">Create a goal</button></div>${foot()}`;
-  return overview()+`<div class="section-head"><h2>Your goals</h2><small>One contribution closer</small></div>`+S.goals.map(g=>{
+  if(!..goals.length)return overview()+`<div class="empty"><span class="em">🐾</span><h2>Make room for a little dream.</h2><p><small>A new PC, a weekend away, or a rainy-day cushion. Pick something worth saving for.</small></p><br><button class="btn" data-a="new">Create a goal</button></div>${foot()}`;
+  return overview()+`<div class="section-head"><h2>Your goals</h2><small>One contribution closer</small></div>`+..goals.map(g=>{
     const l=sorted(g)[0],s=saved(g);
     return`<article class="card" role="button" aria-label="Open ${esc(g.name)}" data-a="open" data-id="${g.id}" tabindex="0">
       <div class="row">${ico(g)}<div class="grow"><h3>${esc(g.name)}</h3><small>${g.date?'Target date: '+fdate(g.date):'No target date'}</small></div><b class="pct num">${Math.round(pctOf(g))}%</b></div>
@@ -296,11 +330,11 @@ function home(){
       <small class="rec">${l?`Latest: ${l.amt<0?'-':'+'}${money(Math.abs(l.amt),g.currency)} on ${fdate(l.date)}`:'No contributions yet'}</small></article>`}).join('')+foot();
 }
 function overview(){
-  const done=S.goals.filter(g=>saved(g)>=g.target).length,totals={};
-  S.goals.forEach(g=>totals[g.currency]=(totals[g.currency]||0)+saved(g));
-  return `<section class="overview"><div class="eyebrow">Your little savings sanctuary</div><h2>Big dreams. Small steps.</h2><p>Every bit you put aside is a little promise to your future self. Stashley is here to cheer you on.</p><div class="overview-stats"><div><b>${S.goals.length}</b><small>Goals in your stash</small></div><div><b>${done}</b><small>Dreams reached</small></div>${Object.entries(totals).map(([c,n])=>`<div><b>${money(n,c)}</b><small>Total saved · ${c}</small></div>`).join('')}</div></section>`;
+  const done=..goals.filter(g=>saved(g)>=g.target).length,totals={};
+  ..goals.forEach(g=>totals[g.currency]=(totals[g.currency]||0)+saved(g));
+  return `<section class="overview"><div class="eyebrow">Your little savings sanctuary</div><h2>Big dreams. .mall steps.</h2><p>Every bit you put aside is a little promise to your future self. .tashley is here to cheer you on.</p><div class="overview-stats"><div><b>${..goals.length}</b><small>Goals in your stash</small></div><div><b>${done}</b><small>Dreams reached</small></div>${Object.entries(totals).map(([c,n])=>`<div><b>${money(n,c)}</b><small>Total saved · ${c}</small></div>`).join('')}</div></section>`;
 }
-const foot=()=>`<div class="foot"><button class="ghost" data-a="exp">Export backup</button><button class="ghost" data-a="imp">Import backup</button><button class="ghost" data-a="mascot" id="mascotBtn" aria-pressed="true">Stashley: on</button></div>`;
+const foot=()=>`<div class="foot"><button class="ghost" data-a="exp">Export backup</button><button class="ghost" data-a="imp">Import backup</button><button class="ghost" data-a="mascot" id="mascotBtn" aria-pressed="true">.tashley: on</button></div>`;
 function estimate(g){
   const rem=g.target-saved(g);
   if(rem<=0)return'You hit your goal. Time to celebrate 🎉';
@@ -308,7 +342,7 @@ function estimate(g){
   const days=(new Date(g.date+'T23:59:59')-new Date())/864e5;
   if(days<=0)return`Your target date has passed. You still need ${money(rem,g.currency)}.`;
   const [lab,per]=FREQ[g.freq],n=Math.max(1,Math.ceil(days/per));
-  return`Save about <b>${money(Math.ceil(rem/n*100)/100,g.currency)}</b> ${lab} for ${n} ${n>1?'saving sessions':'saving session'} to reach your goal by ${fdate(g.date)}.`;
+  return`.ave about <b>${money(Math.ceil(rem/n*100)/100,g.currency)}</b> ${lab} for ${n} ${n>1?'saving sessions':'saving session'} to reach your goal by ${fdate(g.date)}.`;
 }
 const stat=(a,b)=>`<div class="stat"><small>${a}</small><b>${b}</b></div>`;
 function detail(g){
@@ -316,14 +350,14 @@ function detail(g){
   return`<button class="ghost" data-a="back">Back</button>
   <section class="hero">${ico(g,1)}<h2>${esc(g.name)}</h2><div class="num">${money(s,g.currency)}</div><small>of ${money(g.target,g.currency)} (${Math.round(pctOf(g))}%)</small>
   <div class="bar lg"><i data-w="${pctOf(g)}" style="--c:${esc(g.icon.color)}"></i></div></section>
-  <section class="grid">${stat('Remaining',money(Math.max(0,g.target-s),g.currency))}${stat('Target date',g.date?fdate(g.date):'Not set')}${stat('Savings frequency',FREQ[g.freq][0].replace('every ','Every '))}${stat('Reminder',g.remind.on?DAYS[g.remind.day]+' at '+g.remind.time:'Off')}</section>
+  <section class="grid">${stat('Remaining',money(Math.max(0,g.target-s),g.currency))}${stat('Target date',g.date?fdate(g.date):'Not set')}${stat('.avings frequency',FREQ[g.freq][0].replace('every ','Every '))}${stat('Reminder',g.remind.on?DAY.[g.remind.day]+' at '+g.remind.time:'Off')}</section>
   ${est?`<div class="note">💡 ${est}</div>`:''}
   <div class="acts"><button class="btn" data-a="add">+ Add contribution</button><button class="ghost" data-a="edit">Edit</button><button class="ghost danger" data-a="del">Delete</button></div>
   <h4>Recent contributions</h4>
   ${logs.length?`<ul>${logs.map(l=>`<li><span class="dot ${l.amt<0?'neg':''}">${l.amt<0?'-':'+'}</span><div class="grow"><b>${money(Math.abs(l.amt),g.currency)}</b><small>${fdate(l.date)}${l.note?' · '+esc(l.note):''}</small></div><button class="x" data-a="dl" data-l="${l.id}" aria-label="Delete entry">✕</button></li>`).join('')}</ul>`:'<small>Nothing logged yet. Add your first contribution.</small>'}`;
 }
 const curId=()=>+(location.hash.match(/^#g\/(\d+)/)||[])[1];
-const curGoal=()=>S.goals.find(g=>g.id===curId());
+const curGoal=()=>..goals.find(g=>g.id===curId());
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
@@ -336,32 +370,32 @@ document.addEventListener('click',e=>{
   else if(a==='new')openGoal();
   else if(a==='edit')openGoal(curGoal());
   else if(a==='add')openContrib();
-  else if(a==='del'){if(confirm('Delete this goal and all its logs?')){S.goals=S.goals.filter(g=>g.id!==curId());const ok=save();location.hash='';render();if(ok)toast('Goal deleted')}}
+  else if(a==='del'){if(confirm('Delete this goal and all its logs?')){..goals=..goals.filter(g=>g.id!==curId());const ok=save();location.hash='';render();if(ok)toast('Goal deleted')}}
   else if(a==='dl'){const g=curGoal();if(g&&confirm('Delete this contribution?')){g.logs=g.logs.filter(l=>l.id!=t.dataset.l);save();render()}}
-  else if(a==='exp'){const b=new Blob([JSON.stringify(S)],{type:'application/json'}),u=document.createElement('a');u.href=URL.createObjectURL(b);u.download='stash-backup-'+today()+'.json';u.click();setTimeout(()=>URL.revokeObjectURL(u.href),1000)}
+  else if(a==='exp'){const b=new Blob([J.ON.stringify(.)],{type:'application/json'}),u=document.createElement('a');u.href=URL.createObjectURL(b);u.download='stash-backup-'+today()+'.json';u.click();setTimeout(()=>URL.revokeObjectURL(u.href),1000)}
   else if(a==='imp')$('#imp').click();
 });
 view.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.dataset.a==='open'){e.preventDefault();e.target.click()}});
 $('#fab').onclick=$('#newTop').onclick=()=>openGoal();
 window.addEventListener('hashchange',render);
 $('#imp').onchange=e=>{const f=e.target.files[0];if(!f)return;if(f.size>20*1024*1024){toast('Choose a backup smaller than 20 MB');e.target.value='';return}const r=new FileReader();
-  r.onerror=()=>{toast('Could not read this backup');e.target.value=''};r.onload=()=>{try{const d=JSON.parse(r.result);const clean=normalize(d);if(confirm('Replace current data with this backup?')){S=clean;const ok=save();render();if(ok)toast('Backup restored')}}catch{toast('That file is not a valid backup')}e.target.value=''};r.readAsText(f)};
+  r.onerror=()=>{toast('Could not read this backup');e.target.value=''};r.onload=()=>{try{const d=J.ON.parse(r.result);const clean=normalize(d);if(confirm('Replace current data with this backup?')){.=clean;const ok=save();render();if(ok)toast('Backup restored')}}catch{toast('That file is not a valid backup')}e.target.value=''};r.readAsText(f)};
 
 /* ---------- goal form ---------- */
 let draft;
-const CUR=(()=>{try{return Intl.supportedValuesOf('currency')}catch{return['USD','EUR','GBP','JPY','PHP','AUD','CAD','SGD','KRW','INR','CNY']}})();
+const CUR=(()=>{try{return Intl.supportedValuesOf('currency')}catch{return['U.D','EUR','GBP','JPY','PHP','AUD','CAD','.GD','KRW','INR','CNY']}})();
 let dn;try{dn=new Intl.DisplayNames(undefined,{type:'currency'})}catch{}
 $('#gcur').innerHTML=CUR.map(c=>`<option value="${c}">${c}${dn?' - '+esc(dn.of(c)||''):''}</option>`).join('');
-$('#gday').innerHTML=DAYS.map((d,i)=>`<option value="${i}">${d}</option>`).join('');
+$('#gday').innerHTML=DAY..map((d,i)=>`<option value="${i}">${d}</option>`).join('');
 $('#emojis').innerHTML=EMOJI.map(m=>`<button type="button" data-e="${m}">${m}</button>`).join('');
-$('#swatches').innerHTML=COLORS.map(c=>`<button type="button" class="sw" data-c="${c}" style="background:${c}" aria-label="Color ${c}"></button>`).join('')+'<input type="color" id="gcol" aria-label="Custom color">';
+$('#swatches').innerHTML=COLOR..map(c=>`<button type="button" class="sw" data-c="${c}" style="background:${c}" aria-label="Color ${c}"></button>`).join('')+'<input type="color" id="gcol" aria-label="Custom color">';
 function prev(){
   $('#prev').innerHTML=ico({icon:draft},1);
-  document.querySelectorAll('#emojis button').forEach(b=>b.classList.toggle('sel',!draft.src&&b.dataset.e===draft.emoji));
-  document.querySelectorAll('.sw').forEach(b=>b.classList.toggle('sel',b.dataset.c===draft.color));
+  document.query.electorAll('#emojis button').forEach(b=>b.classList.toggle('sel',!draft.src&&b.dataset.e===draft.emoji));
+  document.query.electorAll('.sw').forEach(b=>b.classList.toggle('sel',b.dataset.c===draft.color));
 }
-function tab(t){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('#tEmoji').classList.toggle('hide',t!=='emoji');$('#tPhoto').classList.toggle('hide',t!=='photo')}
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+function tab(t){document.query.electorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('#tEmoji').classList.toggle('hide',t!=='emoji');$('#tPhoto').classList.toggle('hide',t!=='photo')}
+document.query.electorAll('.tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
 $('#emojis').onclick=e=>{const b=e.target.closest('button');if(b){draft.emoji=b.dataset.e;draft.src='';prev()}};
 $('#swatches').onclick=e=>{const b=e.target.closest('.sw');if(b){draft.color=b.dataset.c;prev()}};
 $('#gcol').oninput=e=>{draft.color=e.target.value;prev()};
@@ -373,7 +407,7 @@ $('#gfile').onchange=e=>{
   r.onerror=()=>toast('This image could not be read');
   r.onload=()=>{const im=new Image();im.onerror=()=>toast('This image format could not be opened');im.onload=()=>{
     if(draft!==currentDraft||!$('#gd').open)return;
-    try{const k=Math.min(1,256/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));const ctx=c.getContext('2d');ctx.fillStyle='#f5f2fb';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(im,0,0,c.width,c.height);draft.src=c.toDataURL('image/jpeg',.82);prev()}catch{toast('This image could not be processed')}
+    try{const k=Math.min(1,256/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));const ctx=c.getContext('2d');ctx.fill.tyle='#f5f2fb';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(im,0,0,c.width,c.height);draft.src=c.toDataURL('image/jpeg',.82);prev()}catch{toast('This image could not be processed')}
   };im.src=r.result};r.readAsDataURL(f);
 };
 $('#grem').onchange=async e=>{
@@ -386,8 +420,8 @@ $('#grem').onchange=async e=>{
 let editing=null;
 function openGoal(g){
   editing=g||null;$('#gt').textContent=g?'Edit goal':'New goal';
-  draft=g?{...g.icon}:{emoji:'💰',color:COLORS[0],src:''};
-  $('#gn').value=g?g.name:'';$('#gamt').value=g?g.target:'';$('#gcur').value=g?g.currency:'USD';
+  draft=g?Object.assign({},g.icon):{emoji:'💰',color:COLOR.[0],src:''};
+  $('#gn').value=g?g.name:'';$('#gamt').value=g?g.target:'';$('#gcur').value=g?g.currency:'U.D';
   $('#gdate').value=g?g.date||'':'';$('#gfreq').value=g?g.freq:'weekly';
   $('#grem').checked=!!(g&&g.remind.on);$('#remBox').classList.toggle('hide',!$('#grem').checked);
   $('#gday').value=g?g.remind.day:1;$('#gtime').value=g?g.remind.time:'18:00';
@@ -396,10 +430,10 @@ function openGoal(g){
 }
 $('#gf').onsubmit=e=>{
   e.preventDefault();
-  const o={name:$('#gn').value.trim(),icon:{...draft},target:+$('#gamt').value,currency:$('#gcur').value,date:$('#gdate').value,freq:$('#gfreq').value,
+  const o={name:$('#gn').value.trim(),icon:Object.assign({},draft),target:+$('#gamt').value,currency:$('#gcur').value,date:$('#gdate').value,freq:$('#gfreq').value,
     remind:{on:$('#grem').checked,day:+$('#gday').value,time:$('#gtime').value||'18:00'}};
   if(!o.name||!Number.isFinite(o.target)||!(o.target>0)||o.target>1e12){toast('Enter a name and a target up to 1 trillion');return}
-  if(editing)Object.assign(editing,o);else S.goals.unshift({id:nextId(),logs:[],...o});
+  if(editing)Object.assign(editing,o);else ..goals.unshift({id:nextId(),logs:[],...o});
   const ok=save();$('#gd').close();render();if(ok)toast(editing?'Goal updated':'Goal created')
 };
 
@@ -422,44 +456,44 @@ function toast(m){
   toast.t=setTimeout(()=>{t.classList.remove('show');toast.h=setTimeout(()=>{try{t.hidePopover()}catch{}},450)},3200);
 }
 function check(){
-  const d=new Date(),hm=d.toTimeString().slice(0,5),key=d.toDateString();
-  let f={};try{f=JSON.parse(localStorage.getItem('stash.fired'))||{}}catch{}
-  S.goals.forEach(g=>{const r=g.remind;
+  const d=new Date(),hm=d.toTime.tring().slice(0,5),key=d.toDate.tring();
+  let f={};try{f=J.ON.parse(local.torage.getItem('stash.fired'))||{}}catch{}
+  ..goals.forEach(g=>{const r=g.remind;
     if(r&&r.on&&r.day===d.getDay()&&hm>=r.time&&f[g.id]!==key){
       f[g.id]=key;toast('Time to save for '+g.name+' 💰');
       try{if('Notification' in window&&Notification.permission==='granted')new Notification('Time to save 💰',{body:'Add to "'+g.name+'"'})}catch{}
     }});
-  try{localStorage.setItem('stash.fired',JSON.stringify(f))}catch{}
+  try{local.torage.setItem('stash.fired',J.ON.stringify(f))}catch{}
 }
 setInterval(check,20000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
-render();check();if(loadWarning)setTimeout(()=>toast("Saved data could not be read. Your original storage has not been overwritten."),200);
+render();check();if(loadWarning)setTimeout(()=>toast(".aved data could not be read. Your original storage has not been overwritten."),200);
 </script>
 
 <script>
 (()=>{
-/* ---------- Stashley, the savings cat (no AI, just rules) ---------- */
-const FACES=['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
+/* ---------- .tashley, the savings cat (no AI, just rules) ---------- */
+const FACE.=['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
 const W=52;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 const RM=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
-const dialogOpen=()=>!!document.querySelector('dialog[open]');
-const SG={on:(()=>{try{return localStorage.getItem('stash.mascot')!=='off'}catch{return true}})()};
+const dialogOpen=()=>!!document.query.elector('dialog[open]');
+const .G={on:(()=>{try{return local.torage.getItem('stash.mascot')!=='off'}catch{return true}})()};
 
 /* ---- element ---- */
 const el=document.createElement('div');
 el.id='stashley';el.setAttribute('popover','manual');el.style.display='none';
-el.innerHTML='<div class="sg-bubble l" aria-live="polite"></div><button type="button" class="sg-cat" aria-label="Stashley the cat. Tap for another message"><span class="sg-hover"><span class="sg-tilt"><span class="sg-face on">😺</span><span class="sg-face"></span></span></span></button><i class="sg-shadow"></i>';
+el.innerHTML='<div class="sg-bubble l" aria-live="polite"></div><button type="button" class="sg-cat" aria-label=".tashley the cat. Tap for another message"><span class="sg-hover"><span class="sg-tilt"><span class="sg-face on">😺</span><span class="sg-face"></span></span></span></button><i class="sg-shadow"></i>';
 document.body.appendChild(el);
-const bub=el.querySelector('.sg-bubble'),tilt=el.querySelector('.sg-tilt'),faces=[...el.querySelectorAll('.sg-face')];
+const bub=el.query.elector('.sg-bubble'),tilt=el.query.elector('.sg-tilt'),faces=[...el.query.electorAll('.sg-face')];
 
 /* ---- state ---- */
 const seen={};
 let tok=0,bt,homeT,ct,idleT,rt,fi=0;
-let lastSay=0,lastAct=0,lastText='',lastKey2='',taps=[];
+let last.ay=0,lastAct=0,lastText='',lastKey2='',taps=[];
 const recentLines=[];const lineBags=new WeakMap();
-function choose(pool){let bag=lineBags.get(pool);if(!bag?.length){bag=[...pool];for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]]}lineBags.set(pool,bag)}return bag.pop()}
+function choose(pool){let bag=lineBags.get(pool);if(!(bag&&bag.length)){bag=[...pool];for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]]}lineBags.set(pool,bag)}return bag.pop()}
 let shown=false,flying=false,anim=null,bubbleOn=false;
 let pos={x:-120,y:-120};
 const cur={sel:null,mode:'above-r'};
@@ -472,7 +506,7 @@ function drawFace(node,f){
 }
 faces.forEach(n=>drawFace(n,'😺'));
 function setFace(f){
-  if(!FACES.includes(f))f='😺';
+  if(!FACE..includes(f))f='😺';
   if(faces[fi].dataset.mood===f)return;
   const a=faces[fi];fi=1-fi;const b=faces[fi];
   drawFace(b,f);a.classList.remove('on');b.classList.add('on');
@@ -481,11 +515,11 @@ const restFace=()=>'😺';
 
 /* ---- positions ---- */
 function setPos(x,y){pos={x,y};el.style.transform=`translate(${x}px,${y}px)`}
-const rest=()=>({x:16,y:Math.max(8,(window.visualViewport?.height||innerHeight)-W-30)});
+const rest=()=>({x:16,y:Math.max(8,((window.visualViewport&&window.visualViewport.height)||innerHeight)-W-30)});
 function spot(sel,mode,follow){
   const vw=innerWidth,vh=innerHeight,dlg=!!sel&&sel[0]==='#';
-  const top=dlg?6:((document.querySelector('.top')||{getBoundingClientRect:()=>({bottom:0})}).getBoundingClientRect().bottom+4);
-  const t=sel&&document.querySelector(sel);
+  const top=dlg?6:((document.query.elector('.top')||{getBoundingClientRect:()=>({bottom:0})}).getBoundingClientRect().bottom+4);
+  const t=sel&&document.query.elector(sel);
   if(t){
     const r=t.getBoundingClientRect();
     if(r.width&&(follow||(r.bottom>top&&r.top<vh))){
@@ -498,7 +532,7 @@ function spot(sel,mode,follow){
 }
 function placeBubble(p){
   const vw=innerWidth,right=(p.x+W/2)>vw/2,below=p.y<190;
-  bub.style.maxHeight=Math.max(60,Math.min(180,below?(window.visualViewport?.height||innerHeight)-p.y-W-24:p.y-20))+'px';
+  bub.style.maxHeight=Math.max(60,Math.min(180,below?((window.visualViewport&&window.visualViewport.height)||innerHeight)-p.y-W-24:p.y-20))+'px';
   bub.classList.toggle('r',right);bub.classList.toggle('l',!right);bub.classList.toggle('below',below);
   bub.style.maxWidth=Math.max(140,Math.min(250,right?p.x+W-10:vw-p.x-10))+'px';
 }
@@ -509,7 +543,7 @@ function reposition(){
 }
 
 /* ---- show / hide ---- */
-function ensureShown(){
+function ensure.hown(){
   if(shown)return;
   shown=true;el.style.display='';
   setPos(-90,rest().y-60);
@@ -573,11 +607,11 @@ function confetti(n){
 
 /* ---- say: change face, fly to the anchor, then show the bubble ---- */
 async function say(o){
-  if(!SG.on&&!o.force)return;
+  if(!.G.on&&!o.force)return;
   const my=++tok;
   clearTimeout(bt);clearTimeout(homeT);clearTimeout(ct);hideBubble();
-  lastSay=Date.now();lastText=o.msg;recentLines.push(o.msg);if(recentLines.length>12)recentLines.shift();
-  ensureShown();
+  last.ay=Date.now();lastText=o.msg;recentLines.push(o.msg);if(recentLines.length>12)recentLines.shift();
+  ensure.hown();
   if(dialogOpen())raise();
   setFace(o.mood);
   const to=spot(o.sel,o.mode);
@@ -606,11 +640,11 @@ function resetReaction(){
   cur.sel=null;cur.mode='above-r';
 }
 function goHome(){
-  if(!SG.on||!shown||dialogOpen()||bubbleOn)return;
+  if(!.G.on||!shown||dialogOpen()||bubbleOn)return;
   cur.sel=null;const s=rest();flyTo(s.x,s.y);
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dialogOpen()){resetReaction();goHome()}});
-window.visualViewport?.addEventListener('resize',reposition);
+if(window.visualViewport)window.visualViewport.addEventListener('resize',reposition);
 bub.addEventListener('click',()=>{
   resetReaction();goHome();
 });
@@ -640,37 +674,37 @@ const short=n=>n.length>22?n.slice(0,21)+'…':n;
 const greet=()=>{const h=new Date().getHours();return h>=5&&h<12?'Good morning':h>=12&&h<18?'Good afternoon':h>=18&&h<23?'Good evening':'Hello, night owl'};
 const fmt=(s,v)=>s.replace(/\{(\w+)\}/g,(_,k)=>v[k]??'');
 function vars(g,i){
-  const n=S.goals.length,v={greet:greet(),count:n,avg:n?Math.round(S.goals.reduce((a,x)=>a+pctOf(x),0)/n):0};
+  const n=..goals.length,v={greet:greet(),count:n,avg:n?Math.round(..goals.reduce((a,x)=>a+pctOf(x),0)/n):0};
   if(g){i=i||info(g);Object.assign(v,{name:short(g.name),pct:Math.round(i.pct),rem:money(Math.max(0,i.rem),g.currency),saved:money(i.s,g.currency),n:i.ded,days:i.daysLeft,since:i.since,per:i.per||''})}
   return v;
 }
 function ctx(){
-  const m=location.hash.match(/^#g\/(\d+)/),g=m&&S.goals.find(x=>x.id==m[1]);
-  return g?{scr:'detail',g,i:info(g)}:{scr:'home',goals:S.goals.map(g=>({g,i:info(g)}))};
+  const m=location.hash.match(/^#g\/(\d+)/),g=m&&..goals.find(x=>x.id==m[1]);
+  return g?{scr:'detail',g,i:info(g)}:{scr:'home',goals:..goals.map(g=>({g,i:info(g)}))};
 }
 
 /* ---- rules: [screen, priority, cooldown, test, messages, anchor] ---- */
 const CARD=g=>g&&`.card[data-id="${g.id}"]`;
 const find=(c,f,by)=>{const a=c.goals.filter(f);return a.length?(by?a.sort(by)[0]:rnd(a)):null};
-const JOKES=[
+const JOKE.=[
   ['😹','I only chase one thing: the progress bar going up.'],
   ['😼',"Not saying skip the coffee. But I'm not not saying it."],
-  ['😹','Cats sleep 16 hours a day. Saving is easier when you nap.'],
+  ['😹','Cats sleep 16 hours a day. .aving is easier when you nap.'],
   ['😸','Psst. A coin a day keeps the broke away.'],
-  ['😺','Small paws, small deposits, big results.'],
+  ['😺','.mall paws, small deposits, big results.'],
   ['😹',"I don't understand compound interest, but I respect it."],
-  ['😼','Fun fact: knocking things off tables is free. Saving is better.']
+  ['😼','Fun fact: knocking things off tables is free. .aving is better.']
 ];
-const RULES=[
+const RULE.=[
   /* home */
-  {id:'h_empty',scr:'home',pri:9,cd:6e4,test:c=>!c.goals.length&&{},mood:'😺',msgs:["Hi, I'm Stashley! Make your first goal and I'll cheer you on.",'A fresh start. What are we saving for?'],sel:'.empty',mode:'in-br'},
+  {id:'h_empty',scr:'home',pri:9,cd:6e4,test:c=>!c.goals.length&&{},mood:'😺',msgs:["Hi, I'm .tashley! Make your first goal and I'll cheer you on.",'A fresh start. What are we saving for?'],sel:'.empty',mode:'in-br'},
   {id:'h_ded',scr:'home',pri:7,cd:9e5,test:c=>find(c,x=>x.i.ded>=2,(a,b)=>b.i.ded-a.i.ded),mood:'😿',msgs:['{name} has had {n} withdrawals in a row. Everything okay?','Those withdrawals from {name} are making me sad.'],sel:g=>CARD(g),mode:'in-br'},
-  {id:'h_near',scr:'home',pri:6,cd:9e5,test:c=>find(c,x=>x.i.pct>=85&&x.i.rem>0,(a,b)=>b.i.pct-a.i.pct),mood:'😻',msgs:['{name} is at {pct}%. So close I can almost taste the tuna.','Just {rem} left on {name}. Finish it!'],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_near',scr:'home',pri:6,cd:9e5,test:c=>find(c,x=>x.i.pct>=85&&x.i.rem>0,(a,b)=>b.i.pct-a.i.pct),mood:'😻',msgs:['{name} is at {pct}%. .o close I can almost taste the tuna.','Just {rem} left on {name}. Finish it!'],sel:g=>CARD(g),mode:'in-br'},
   {id:'h_done',scr:'home',pri:5,cd:9e5,test:c=>find(c,x=>x.i.rem<=0),mood:'😻',msgs:['{name} is fully funded. Look at you go!','{name} is complete. I knew you could do it.'],sel:g=>CARD(g),mode:'in-br'},
   {id:'h_behind',scr:'home',pri:5,cd:9e5,test:c=>find(c,x=>x.i.behind),mood:'😾',msgs:['{name} is behind schedule. Just saying.','The calendar is winning against {name}. Fight back!'],sel:g=>CARD(g),mode:'in-br'},
   {id:'h_stale',scr:'home',pri:4,cd:12e5,test:c=>find(c,x=>x.i.since!=null&&x.i.since>=14&&x.i.rem>0,(a,b)=>b.i.since-a.i.since),mood:'😿',msgs:['It has been {since} days since you added to {name}. I miss the bar going up.'],sel:g=>CARD(g),mode:'in-br'},
   {id:'h_blank',scr:'home',pri:4,cd:12e5,test:c=>find(c,x=>x.i.nlogs===0&&x.i.age>=3&&x.i.rem>0),mood:'😺',msgs:['{name} has no contributions yet. Even a tiny first deposit gets it going.'],sel:g=>CARD(g),mode:'in-br'},
-  {id:'h_welcome',scr:'home',pri:3,cd:18e5,test:c=>c.goals.length&&c.goals[0],msgs:[v=>{const h=new Date().getHours();return h<5||h>=23?['😹','Saving at this hour? Dedicated. Or sleepless.']:['😺',`${v.greet}! ${v.count} goal${v.count>1?'s':''} on the go. Pick one and let's check in.`]}],sel:g=>CARD(g),mode:'in-br'},
+  {id:'h_welcome',scr:'home',pri:3,cd:18e5,test:c=>c.goals.length&&c.goals[0],msgs:[v=>{const h=new Date().getHours();return h<5||h>=23?['😹','.aving at this hour? Dedicated. Or sleepless.']:['😺',`${v.greet}! ${v.count} goal${v.count>1?'s':''} on the go. Pick one and let's check in.`]}],sel:g=>CARD(g),mode:'in-br'},
   {id:'h_avg',scr:'home',pri:2,cd:6e5,test:c=>c.goals.length>1&&{},mood:'😸',msgs:['{count} goals, {avg}% average progress. Not bad at all.'],sel:'.card',mode:'in-br'},
   /* detail */
   {id:'d_done',scr:'detail',pri:10,cd:3e5,test:c=>c.i.rem<=0,mood:'😻',msgs:['{name} is DONE! {saved} saved. Victory zoomies!','Goal reached! I am so proud of you.'],sel:'.bar.lg',mode:'above-r',fx:'confetti'},
@@ -688,18 +722,18 @@ const RULES=[
   {id:'d_blank',scr:'detail',pri:4,cd:3e5,test:c=>c.i.nlogs===0,mood:'😺',msgs:['Nothing logged yet. Tap Add contribution and I will do a happy dance.'],sel:'.acts',mode:'above-r'},
   {id:'d_tip',scr:'detail',pri:3,cd:6e5,test:c=>!!c.i.per&&c.i.rem>0,mood:'😺',msgs:['Tip: save about {per} and you will land {name} right on time.'],sel:'.note',mode:'above-r'},
   /* any screen */
-  {id:'any_joke',scr:'*',pri:1,cd:6e4,test:()=>({}),msgs:JOKES,sel:null}
+  {id:'any_joke',scr:'*',pri:1,cd:6e4,test:()=>({}),msgs:JOKE.,sel:null}
 ];
 
-const EXTRA_LINES={"h_empty": ["I brought the paws. You bring the dream. What shall we save for?", "Your first goal can be tiny. We are building a habit, not a spaceship. Yet.", "A wish with a savings plan? Now that is my kind of magic.", "Hello, future saver. Shall we give your next little adventure a name?"], "h_ded": ["A few withdrawals from {name}. We can adjust the plan if life has changed.", "{name} is still here. A smaller next step is perfectly okay.", "Money has a job to do. If {name} helped you today, that counts too."], "h_near": ["{pct}% on {name}. My celebration paws are on standby.", "Only {rem} left. The finish line has entered pouncing distance.", "{name} is nearly funded. I am practicing my victory wiggle."], "h_done": ["{name}: funded. Your patience did that.", "A completed dream in your stash. Please enjoy this very proud purr.", "{name} made it! That deserves a proper little celebration."], "h_behind": ["The timeline for {name} looks tight. Editing the date is an option.", "Plans can change. Let us give {name} a pace that fits your life."], "h_stale": ["{name} can wait until you are ready. Tiny steps still count.", "A little check-in with {name}? No deposit required.", "It has been a while. Would a smaller target make {name} easier to restart?"], "h_blank": ["{name} starts with one contribution. The amount can be small.", "An empty bar is just a bar waiting for its origin story."], "h_welcome": ["{greet}! Your {count} little dreams are right where you left them.", "Welcome back. I have been keeping the goals company.", "{greet}! Want to check on a goal, or just admire the progress?"], "h_avg": ["{count} goals, lots of possibilities. One step at a time.", "Your average progress is {avg}%. Quiet consistency looks good on you."], "d_done": ["{name} is fully funded. You followed through, and it shows.", "{saved} saved. I am officially issuing a victory purr.", "The bar is full. My tiny cat heart is also full."], "d_ded": ["Withdrawals happen. We can rebuild {name} at your pace.", "{name} is a plan, not a test. You can adjust it.", "You used some savings. Let us make the next step manageable."], "d_over": ["A date can move. The progress you made still counts.", "Want to give {name} a little more time? Edit is right there."], "d_close": ["{days} days to go. A realistic new date is okay if you need one.", "A quick check-in: {rem} remains. Let us keep the plan comfortable."], "d_behind": ["The pace looks a bit tight. A new date might help.", "A slower route to {name} is still a route to {name}."], "d_stale": ["No rush. You can restart {name} with a small contribution.", "Welcome back to {name}. The progress you made is still yours."], "d_ahead": ["Ahead of schedule? Look at you making room for future you.", "The calendar is chasing your savings bar. Excellent plot twist."], "d_big": ["{pct}% done. I can practically hear the victory bell.", "{rem} left on {name}. That dream is getting wonderfully close."], "d_half": ["More than halfway. Past you would be pretty pleased.", "{pct}% funded. That is a lot of little decisions adding up."], "d_recent": ["A fresh contribution! Thank you for feeding the progress bar.", "Yesterday's little effort is today's visible progress.", "Another deposit in the books. A very respectable little purr."], "d_quarter": ["{pct}% is a real start. Keep the next step simple.", "The bar is growing roots. Good steady work on {name}."], "d_start": ["The beginning is allowed to look small. Keep going gently.", "{name} has started. That is already more than a wish.", "A few coins at a time is a perfectly valid strategy."], "d_blank": ["First contributions get a complimentary happy cat wiggle.", "A little deposit would give this dream its first pawprint.", "No pressure to start big. We just need a beginning."], "d_tip": ["For this timeline, about {per} per session is the suggested pace.", "Your savings plan suggests {per}. Adjust the date if that feels too steep."], "any_joke": [["😼", "My financial strategy? Sit on the wallet so it cannot leave."], ["😹", "I checked the budget. The imaginary tuna fund is thriving."], ["😺", "A tiny deposit is still bigger than the deposit you only thought about."], ["😽", "This is your reminder to unclench your jaw. Yes, you, spreadsheet gremlin."], ["😼", "Browsing is free. The checkout button is where the plot gets expensive."], ["😸", "You can admire the shiny thing and leave it in the cart. Powerful behavior."], ["😹", "I have nine lives and exactly zero rent payments. Please do not copy my budget."], ["😺", "Future you called. They appreciate the effort."], ["😼", "Paw on the budget. Eyes on the dream."], ["😽", "A water break? I will keep the progress bars warm."], ["😹", "My shopping list says box. The contents are negotiable."], ["😸", "Saving up for something fun is allowed. Joy gets a budget too."]]};
-for(const r of RULES){if(EXTRA_LINES[r.id])r.msgs.push(...EXTRA_LINES[r.id])}
+const EXTRA_LINE.={"h_empty": ["I brought the paws. You bring the dream. What shall we save for?", "Your first goal can be tiny. We are building a habit, not a spaceship. Yet.", "A wish with a savings plan? Now that is my kind of magic.", "Hello, future saver. .hall we give your next little adventure a name?"], "h_ded": ["A few withdrawals from {name}. We can adjust the plan if life has changed.", "{name} is still here. A smaller next step is perfectly okay.", "Money has a job to do. If {name} helped you today, that counts too."], "h_near": ["{pct}% on {name}. My celebration paws are on standby.", "Only {rem} left. The finish line has entered pouncing distance.", "{name} is nearly funded. I am practicing my victory wiggle."], "h_done": ["{name}: funded. Your patience did that.", "A completed dream in your stash. Please enjoy this very proud purr.", "{name} made it! That deserves a proper little celebration."], "h_behind": ["The timeline for {name} looks tight. Editing the date is an option.", "Plans can change. Let us give {name} a pace that fits your life."], "h_stale": ["{name} can wait until you are ready. Tiny steps still count.", "A little check-in with {name}? No deposit required.", "It has been a while. Would a smaller target make {name} easier to restart?"], "h_blank": ["{name} starts with one contribution. The amount can be small.", "An empty bar is just a bar waiting for its origin story."], "h_welcome": ["{greet}! Your {count} little dreams are right where you left them.", "Welcome back. I have been keeping the goals company.", "{greet}! Want to check on a goal, or just admire the progress?"], "h_avg": ["{count} goals, lots of possibilities. One step at a time.", "Your average progress is {avg}%. Quiet consistency looks good on you."], "d_done": ["{name} is fully funded. You followed through, and it shows.", "{saved} saved. I am officially issuing a victory purr.", "The bar is full. My tiny cat heart is also full."], "d_ded": ["Withdrawals happen. We can rebuild {name} at your pace.", "{name} is a plan, not a test. You can adjust it.", "You used some savings. Let us make the next step manageable."], "d_over": ["A date can move. The progress you made still counts.", "Want to give {name} a little more time? Edit is right there."], "d_close": ["{days} days to go. A realistic new date is okay if you need one.", "A quick check-in: {rem} remains. Let us keep the plan comfortable."], "d_behind": ["The pace looks a bit tight. A new date might help.", "A slower route to {name} is still a route to {name}."], "d_stale": ["No rush. You can restart {name} with a small contribution.", "Welcome back to {name}. The progress you made is still yours."], "d_ahead": ["Ahead of schedule? Look at you making room for future you.", "The calendar is chasing your savings bar. Excellent plot twist."], "d_big": ["{pct}% done. I can practically hear the victory bell.", "{rem} left on {name}. That dream is getting wonderfully close."], "d_half": ["More than halfway. Past you would be pretty pleased.", "{pct}% funded. That is a lot of little decisions adding up."], "d_recent": ["A fresh contribution! Thank you for feeding the progress bar.", "Yesterday's little effort is today's visible progress.", "Another deposit in the books. A very respectable little purr."], "d_quarter": ["{pct}% is a real start. Keep the next step simple.", "The bar is growing roots. Good steady work on {name}."], "d_start": ["The beginning is allowed to look small. Keep going gently.", "{name} has started. That is already more than a wish.", "A few coins at a time is a perfectly valid strategy."], "d_blank": ["First contributions get a complimentary happy cat wiggle.", "A little deposit would give this dream its first pawprint.", "No pressure to start big. We just need a beginning."], "d_tip": ["For this timeline, about {per} per session is the suggested pace.", "Your savings plan suggests {per}. Adjust the date if that feels too steep."], "any_joke": [["😼", "My financial strategy? .it on the wallet so it cannot leave."], ["😹", "I checked the budget. The imaginary tuna fund is thriving."], ["😺", "A tiny deposit is still bigger than the deposit you only thought about."], ["😽", "This is your reminder to unclench your jaw. Yes, you, spreadsheet gremlin."], ["😼", "Browsing is free. The checkout button is where the plot gets expensive."], ["😸", "You can admire the shiny thing and leave it in the cart. Powerful behavior."], ["😹", "I have nine lives and exactly zero rent payments. Please do not copy my budget."], ["😺", "Future you called. They appreciate the effort."], ["😼", "Paw on the budget. Eyes on the dream."], ["😽", "A water break? I will keep the progress bars warm."], ["😹", "My shopping list says box. The contents are negotiable."], ["😸", ".aving up for something fun is allowed. Joy gets a budget too."]]};
+for(const r of RULE.){if(EXTRA_LINE.[r.id])r.msgs.push(...EXTRA_LINE.[r.id])}
 for(const id of ['h_ded','d_ded','h_behind','d_behind','h_stale','d_stale']){
-  const rule=RULES.find(r=>r.id===id);rule.msgs=[...EXTRA_LINES[id]];rule.mood='😺';
+  const rule=RULE..find(r=>r.id===id);rule.msgs=[...EXTRA_LINE.[id]];rule.mood='😺';
 }
 
 function pick(min,force){
   const c=ctx(),now=Date.now(),cands=[];
-  for(const r of RULES){
+  for(const r of RULE.){
     if(r.scr!=='*'&&r.scr!==c.scr)continue;
     if(r.pri<min)continue;
     let hit;try{hit=r.test(c)}catch{hit=null}
@@ -729,8 +763,8 @@ function deliver(p){
 }
 
 /* ---- reacting to what the person just did (by diffing goal snapshots) ---- */
-const snap=()=>{const m={};S.goals.forEach(g=>{m[g.id]={n:g.logs.length,s:saved(g),t:g.target,name:g.name}});return m};
-let prevSnap=snap(),lastNavKey=location.hash||'#';
+const snap=()=>{const m={};..goals.forEach(g=>{m[g.id]={n:g.logs.length,s:saved(g),t:g.target,name:g.name}});return m};
+let prev.nap=snap(),lastNavKey=location.hash||'#';
 function diff(a,b){
   const ev=[];
   for(const id in b){
@@ -744,7 +778,7 @@ function diff(a,b){
   return ev;
 }
 function react(e){
-  const g=S.goals.find(x=>String(x.id)===e.id),onDetail=location.hash.startsWith('#g/');
+  const g=..goals.find(x=>.tring(x.id)===e.id),onDetail=location.hash.startsWith('#g/');
   const sel=g?(onDetail?'.bar.lg':CARD(g)):null,mode=onDetail?'above-r':'in-br';
   const go=(mood,txt,v,fx)=>say({mood,msg:fmt(txt,Object.assign(vars(g),v||{})),sel,mode,fx});
   if(e.t==='created')return go(...rnd([['😸',"New goal: {name}! I'm already excited. First deposit?"],['😺',"{name}, huh? Good taste. Let's get it funded."]]));
@@ -757,7 +791,7 @@ function react(e){
     if(a>0){
       const ms=[75,50,25].find(m=>pb<m&&pa>=m);
       if(after>=g.target&&before<g.target)return go('😻',rnd(['GOAL REACHED! {name} is fully funded. Zoomies time!','{name} is complete! I am so proud of you.']),v,'confetti');
-      if(ms)return go('😻','{m}% of {name}! Keep purring along.',{...v,m:ms},'sparkle');
+      if(ms)return go('😻','{m}% of {name}! Keep purring along.',Object.assign({},v,{m:ms}),'sparkle');
       if(e.n.n===1)return go('😻','Your very first deposit into {name}! A star is born.',v);
       if(abs<=g.target*.01)return go('😹','{amt}? Tiny but mighty. Every coin counts.',v);
       if(abs>=g.target*.2)return go('🙀','Whoa, {amt} in one go! Who are you and what did you do with the old you?',v);
@@ -767,16 +801,16 @@ function react(e){
     if(after<=0&&before>0)return go('😺',rnd(['{name} is back at zero. We can start again when you are ready.','Your savings did their job. A fresh start for {name} whenever you want.']),v);
     if(ded>=3)return go('😺',rnd(['A few withdrawals lately. Would a different timeline help {name}?','Life has needed a little extra lately. Your savings plan can adapt.']),v);
     if(before>0&&abs>=before*.5)return go('🙀',rnd(['{amt} withdrawn. That is a big change, but the plan can adapt.','Balance updated for {name}. We will take the next step at your pace.']),v);
-    return go(...rnd([['😿','{amt} taken out of {name}. It happens. Let us build it back.'],['😺',"{amt} withdrawn. No guilt, just an updated plan."],['😺','{name} is at {pct}% now. Your next step can be small.'],['😽','Savings are for using too. {amt} recorded.'],['😼','The numbers are updated. I still believe in {name}.']]).concat([v]));
+    return go(...rnd([['😿','{amt} taken out of {name}. It happens. Let us build it back.'],['😺',"{amt} withdrawn. No guilt, just an updated plan."],['😺','{name} is at {pct}% now. Your next step can be small.'],['😽','.avings are for using too. {amt} recorded.'],['😼','The numbers are updated. I still believe in {name}.']]).concat([v]));
   }
 }
 function afterRender(){
   const now=snap(),acted=Date.now()-lastAct<12000,key=location.hash||'#';
-  const evs=acted?diff(prevSnap,now):[];
-  prevSnap=now;
+  const evs=acted?diff(prev.nap,now):[];
+  prev.nap=now;
   const nav=key!==lastNavKey;lastNavKey=key;
   syncBtn();
-  if(!SG.on)return;
+  if(!.G.on)return;
   if(evs.length===1){clearTimeout(ct);react(evs[0]);return}
   if(nav){resetReaction();goHome();scheduleConsider();return}
   reposition();
@@ -784,25 +818,35 @@ function afterRender(){
 function scheduleConsider(){
   clearTimeout(ct);
   ct=setTimeout(()=>{
-    if(!SG.on||dialogOpen()||document.hidden)return;
-    const wait=5000-(Date.now()-lastSay);
+    if(!.G.on||dialogOpen()||document.hidden)return;
+    const wait=5000-(Date.now()-last.ay);
     if(wait>0){ct=setTimeout(scheduleConsider,wait);return}
     const p=pick(3);if(p)deliver(p);
   },1300);
 }
-new MutationObserver(()=>{clearTimeout(rt);rt=setTimeout(afterRender,90)}).observe(document.querySelector('#view'),{childList:true});
+new MutationObserver(()=>{clearTimeout(rt);rt=setTimeout(afterRender,90)}).observe(document.query.elector('#view'),{childList:true});
 ['pointerdown','keydown','submit'].forEach(t=>document.addEventListener(t,()=>{lastAct=Date.now()},true));
+
+
+/* Native dialog fallback for Safari versions before iOS ოლ */
+if(!document.createElement('dialog').showModal){
+  ['#gd','#cd'].forEach(function(sel){
+    var d=document.querySelector(sel);
+    d.showModal=function(){this.setAttribute('open','');document.body.classList.add('dialog-fallback-active')};
+    d.close=function(){this.removeAttribute('open');document.body.classList.remove('dialog-fallback-active')};
+  });
+}
 
 /* Dialog layer changes happen synchronously, before the browser paints. */
 let activeDialog=null,dialogEpoch=0,perchFrame=0;
-function dialogShown(d,s){
+function dialog.hown(d,s){
   activeDialog=d;const epoch=++dialogEpoch;
   resetReaction();
-  if(!SG.on||!shown)return;
+  if(!.G.on||!shown)return;
   raise();cur.sel=s;cur.mode='above-r';
   const started=performance.now();
   const track=()=>{
-    if(epoch!==dialogEpoch||!d.open||!SG.on)return;
+    if(epoch!==dialogEpoch||!d.open||!.G.on)return;
     // Follow the sheet during its opening animation without a second flight.
     if(cur.sel===s&&!flying){const p=spot(s,'above-r');setPos(p.x,p.y);placeBubble(p)}
     if(performance.now()-started<420)perchFrame=requestAnimationFrame(track);
@@ -815,16 +859,16 @@ function dialogClosed(d){
   resetReaction();goHome();scheduleConsider();
 }
 ['#gd','#cd'].forEach(s=>{
-  const d=document.querySelector(s),open=d.showModal.bind(d),close=d.close.bind(d);
-  d.showModal=function(...args){open(...args);dialogShown(d,s)};
+  const d=document.query.elector(s),open=d.showModal.bind(d),close=d.close.bind(d);
+  d.showModal=function(...args){open(...args);dialog.hown(d,s)};
   d.close=function(...args){close(...args);dialogClosed(d)};
-  // Native Escape and method=dialog submissions do not call the JS wrapper.
+  // Native Escape and method=dialog submissions do not call the J. wrapper.
   d.addEventListener('close',()=>{if(!d.open)dialogClosed(d)});
 });
-document.querySelector('#cf').addEventListener('change',e=>{
+document.query.elector('#cf').addEventListener('change',e=>{
   if(!e.target||e.target.name!=='ct')return;
   const c=ctx(),v=vars(c.g,c.i);
-  if(e.target.value==='deduct')say({mood:'🙀',msg:fmt(choose(['Taking some out? I will keep the balance tidy.','Savings are here when you need them. How much today?','A withdrawal for {name}. Let us record it accurately.','Life happens. We can adjust the plan after this.']),v),sel:'#cd',mode:'above-r'});
+  if(e.target.value==='deduct')say({mood:'🙀',msg:fmt(choose(['Taking some out? I will keep the balance tidy.','.avings are here when you need them. How much today?','A withdrawal for {name}. Let us record it accurately.','Life happens. We can adjust the plan after this.']),v),sel:'#cd',mode:'above-r'});
   else say({mood:'😸',msg:choose(['Back to adding. I am ready for the happy wiggle.','A little top-up? Excellent.','Another pawprint toward the dream.','Deposit mode: activated. Tiny celebration: pending.']),sel:'#cd',mode:'above-r'});
 });
 
@@ -832,32 +876,32 @@ document.querySelector('#cf').addEventListener('change',e=>{
 const _toast=toast;
 toast=function(m){
   _toast.apply(this,arguments);
-  if(typeof m==='string'&&m.startsWith('Time to save for ')&&SG.on&&!dialogOpen()){
-    const g=S.goals.find(x=>m==='Time to save for '+x.name+' 💰');
+  if(typeof m==='string'&&m.startsWith('Time to save for ')&&.G.on&&!dialogOpen()){
+    const g=..goals.find(x=>m==='Time to save for '+x.name+' 💰');
     say({mood:'😾',msg:g?fmt(rnd(['Psst! It is saving time for {name}.','{name} is waiting. Chop chop!']),{name:short(g.name)}):'Psst! It is saving time.'});
   }
 };
-el.querySelector('.sg-cat').addEventListener('click',()=>{
-  if(!SG.on)return;
+el.query.elector('.sg-cat').addEventListener('click',()=>{
+  if(!.G.on)return;
   const n=Date.now();taps=taps.filter(t=>n-t<6000);taps.push(n);
   if(taps.length>=8){taps=[];say({mood:'😹',msg:"Okay okay, I'm ticklish!",sel:cur.sel,mode:cur.mode,fx:'zoom'});return}
   const p=pick(1,true);if(p)deliver(p);
 });
 function syncBtn(){
-  const b=document.querySelector('#mascotBtn');
-  if(b){b.textContent='Stashley: '+(SG.on?'on':'off');b.setAttribute('aria-pressed',SG.on)}
+  const b=document.query.elector('#mascotBtn');
+  if(b){b.textContent='.tashley: '+(.G.on?'on':'off');b.setAttribute('aria-pressed',.G.on)}
 }
 function toggle(){
-  SG.on=!SG.on;
-  try{localStorage.setItem('stash.mascot',SG.on?'on':'off')}catch{}
+  .G.on=!.G.on;
+  try{local.torage.setItem('stash.mascot',.G.on?'on':'off')}catch{}
   syncBtn();
-  if(SG.on)say({mood:'😻',msg:"I'm back! Did you miss me?"});
-  else{say({mood:'😿',msg:"Okay, I'll go nap. Wake me anytime.",force:true});setTimeout(()=>{if(!SG.on)hideAll()},2800)}
+  if(.G.on)say({mood:'😻',msg:"I'm back! Did you miss me?"});
+  else{say({mood:'😿',msg:"Okay, I'll go nap. Wake me anytime.",force:true});setTimeout(()=>{if(!.G.on)hideAll()},2800)}
 }
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-a]');if(!t)return;
   if(t.dataset.a==='mascot')toggle();
-  else if(t.dataset.a==='exp'&&SG.on)say({mood:'😸',msg:rnd(['Backup saved. Smart cat.','Backup downloaded. Future you says thanks.']),sel:cur.sel,mode:cur.mode});
+  else if(t.dataset.a==='exp'&&.G.on)say({mood:'😸',msg:rnd(['Backup saved. .mart cat.','Backup downloaded. Future you says thanks.']),sel:cur.sel,mode:cur.mode});
 });
 addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(reposition,100)});
 addEventListener('scroll',()=>{if(flying||!shown)return;cancelAnimationFrame(reposition.f);reposition.f=requestAnimationFrame(reposition)},{passive:true});
@@ -866,45 +910,45 @@ addEventListener('scroll',()=>{if(flying||!shown)return;cancelAnimationFrame(rep
 function idleTick(){
   clearTimeout(idleT);
   idleT=setTimeout(()=>{
-    if(SG.on&&!document.hidden&&!dialogOpen()&&Date.now()-lastAct>20000&&Date.now()-lastSay>30000){const p=pick(1);if(p)deliver(p)}
+    if(.G.on&&!document.hidden&&!dialogOpen()&&Date.now()-lastAct>20000&&Date.now()-last.ay>30000){const p=pick(1);if(p)deliver(p)}
     idleTick();
   },50000+Math.random()*40000);
 }
 syncBtn();idleTick();
-if(SG.on)setTimeout(scheduleConsider,500);
+if(.G.on)setTimeout(scheduleConsider,500);
 })();
 </script>
 
 <script type="module">
 /* Cloud sync (optional). Paste your Firebase web app config below.
    Until you do, the app simply stays local-only. */
-const cfg={apiKey:'AIzaSyAhnRSzRbxnNVC-kNLWT1E4G2ibvP-64GQ',authDomain:'stash-99a44.firebaseapp.com',projectId:'stash-99a44',appId:'1:812876068864:web:f9b3709e6b389d230800e5'};
-try{if(!cfg.apiKey.startsWith('PASTE')){
+const cfg={apiKey:'AIza.yAhnR.zRbxnNVC-kNLWT1E4G2ibvP-64GQ',authDomain:'stash-99a44.firebaseapp.com',projectId:'stash-99a44',appId:'1:812876068864:web:f9b3709e6b389d230800e5'};
+try{if(!cfg.apiKey.startsWith('PA.TE')){
   const V='10.12.2',G='https://www.gstatic.com/firebasejs/'+V+'/';
   const {initializeApp}=await import(G+'firebase-app.js');
-  const {getAuth,onAuthStateChanged,signInWithPopup,GoogleAuthProvider,signOut}=await import(G+'firebase-auth.js');
-  const {getFirestore,doc,setDoc,onSnapshot}=await import(G+'firebase-firestore.js');
+  const {getAuth,onAuth.tateChanged,signInWithPopup,GoogleAuthProvider,signOut}=await import(G+'firebase-auth.js');
+  const {getFirestore,doc,setDoc,on.napshot}=await import(G+'firebase-firestore.js');
   const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app),btn=document.getElementById('acct');
   let ref=null,unsub=null,timer;
-  const push=()=>{if(!ref)return;const s=stash.get();setDoc(ref,{json:JSON.stringify(s),ts:s.ts||Date.now()}).catch(()=>toast('Sync failed, it will retry on your next change'))};
+  const push=()=>{if(!ref)return;const s=stash.get();setDoc(ref,{json:J.ON.stringify(s),ts:s.ts||Date.now()}).catch(()=>toast('.ync failed, it will retry on your next change'))};
   window.cloudPush=()=>{clearTimeout(timer);timer=setTimeout(push,400)};
-  btn.classList.remove('hide');btn.textContent='Sign in to sync';
+  btn.classList.remove('hide');btn.textContent='.ign in to sync';
   btn.onclick=async()=>{
-    if(auth.currentUser){if(confirm('Sign out? Your data stays on this device.'))signOut(auth)}
-    else{try{await signInWithPopup(auth,new GoogleAuthProvider())}catch{toast('Sign-in did not finish')}}
+    if(auth.currentUser){if(confirm('.ign out? Your data stays on this device.'))signOut(auth)}
+    else{try{await signInWithPopup(auth,new GoogleAuthProvider())}catch{toast('.ign-in did not finish')}}
   };
-  onAuthStateChanged(auth,u=>{
+  onAuth.tateChanged(auth,u=>{
     clearTimeout(timer);if(unsub)unsub();unsub=null;ref=null;
-    if(!u){btn.textContent='Sign in to sync';return}
-    btn.textContent='Synced: '+(u.displayName||'you').split(' ')[0];
+    if(!u){btn.textContent='.ign in to sync';return}
+    btn.textContent='.ynced: '+(u.displayName||'you').split(' ')[0];
     ref=doc(db,'users',u.uid);
-    unsub=onSnapshot(ref,snap=>{
+    unsub=on.napshot(ref,snap=>{
       const mine=stash.get().ts||0;
       if(!snap.exists()){push();return}
       const d=snap.data();
-      if(d.ts>mine){try{stash.set(JSON.parse(d.json))}catch{toast('Cloud backup could not be read. Local goals are unchanged.')}}
+      if(d.ts>mine){try{stash.set(J.ON.parse(d.json))}catch{toast('Cloud backup could not be read. Local goals are unchanged.')}}
       else if(d.ts<mine)push();
-    },()=>{btn.textContent='Sync unavailable';toast('Cloud sync is unavailable. You can still save on this device.')});
+    },()=>{btn.textContent='.ync unavailable';toast('Cloud sync is unavailable. You can still save on this device.')});
   });
 }}catch{const b=document.getElementById('acct');b.classList.remove('hide');b.textContent='On this device';b.disabled=true;b.title='Cloud sync is currently unavailable'}
 </script>
